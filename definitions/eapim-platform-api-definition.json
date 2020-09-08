@@ -1,0 +1,192 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "EAPIM Platform API",
+      "version": "1.0"
+    },
+    "host": "dev-api-customerengagement.platform.education.gov.uk",
+    "basePath": "/platform",
+    "schemes": [
+      "https"
+    ],
+    "securityDefinitions": {
+      "apiKeyHeader": {
+        "type": "apiKey",
+        "name": "Ocp-Apim-Subscription-Key",
+        "in": "header"
+      },
+      "apiKeyQuery": {
+        "type": "apiKey",
+        "name": "subscription-key",
+        "in": "query"
+      }
+    },
+    "security": [
+      {
+        "apiKeyHeader": []
+      },
+      {
+        "apiKeyQuery": []
+      }
+    ],
+    "paths": {
+      "/apis": {
+        "get": {
+          "description": "GetApisByTag",
+          "operationId": "GetApisByTag",
+          "summary": "GetApisByTag",
+          "responses": {
+            "200": {
+              "description": "Allows to search API by Tag"
+            }
+          }
+        }
+      },
+      "/GetAllApis": {
+        "get": {
+          "description": "GetAllApis",
+          "operationId": "GetAllApis",
+          "summary": "GetAllApis",
+          "responses": {
+            "200": {
+              "description": "Returns list of All Apis in the platform"
+            }
+          }
+        }
+      },
+      "/RegisterApplication": {
+        "post": {
+          "description": "RegisterApplication",
+          "operationId": "RegisterApplication",
+          "summary": "RegisterApplication",
+          "responses": {
+            "200": {
+              "description": "Allows to register the user applications"
+            }
+          }
+        }
+      },
+      "/GetApplications": {
+        "post": {
+          "description": "GetApplications",
+          "operationId": "GetApplications",
+          "summary": "GetApplications",
+          "responses": {
+            "200": {
+              "description": "Allows to get the list of applications"
+            }
+          }
+        }
+      },
+      "/UpdateApplication": {
+        "post": {
+          "operationId": "updateapplication",
+          "summary": "UpdateApplication",
+          "responses": {
+            "200": {
+              "description": "UpdateApplication"
+            }
+          }
+        }
+      },
+      "/DeleteApplication": {
+        "delete": {
+          "operationId": "deleteapplication",
+          "summary": "DeleteApplication",
+          "responses": {
+            "200": {
+              "description": "DeleteApplication"
+            }
+          }
+        }
+      },
+      "/GenerateApplicationSecret": {
+        "post": {
+          "description": "Generates a new secret for an application",
+          "operationId": "generateapplicationsecret",
+          "summary": "GenerateApplicationSecret",
+          "responses": {
+            "200": {
+              "description": "GenerateApplicationSecret"
+            }
+          }
+        }
+      },
+      "/Account": {
+        "delete": {
+          "operationId": "account",
+          "summary": "Account",
+          "responses": {
+            "200": {
+              "description": "Account"
+            }
+          }
+        }
+      },
+      "/ApplicationByID": {
+        "get": {
+          "operationId": "Applicationbyid",
+          "summary": "ApplicationByID",
+          "responses": {
+            "200": {
+              "description": "ApplicationByID"
+            }
+          }
+        }
+      },
+      "/Subscriptions": {
+        "get": {
+          "operationId": "subscriptions",
+          "summary": "Subscriptions",
+          "responses": {
+            "200": {
+              "description": "Subscriptions"
+            }
+          }
+        }
+      },
+      "/subscriptionkeys": {
+        "get": {
+          "operationId": "subscriptionkeys",
+          "summary": "SubscriptionKeys",
+          "responses": {
+            "200": {
+              "description": "subscriptionkeys"
+            }
+          }
+        }
+      },
+      "/subscription": {
+        "delete": {
+          "operationId": "subscription",
+          "summary": "Subscription",
+          "responses": {
+            "200": {
+              "description": "delete subscription"
+            }
+          }
+        },
+        "post": {
+          "operationId": "create-subscription",
+          "summary": "create Subscription",
+          "responses": {
+            "200": {
+              "description": "create subscription"
+            }
+          }
+        }
+      },
+      "/GetApiTags": {
+        "post": {
+          "operationId": "getapitags",
+          "summary": "GetApiTags",
+          "responses": {
+            "200": {
+              "description": "GetApiTags"
+            }
+          }
+        }
+      }
+    },
+    "tags": []
+  }

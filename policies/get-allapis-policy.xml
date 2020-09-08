@@ -1,0 +1,48 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<cache-lookup-value key="@(&quot;management_token&quot;)" variable-name="apis_access_token" />
+		<!-- If API Management doesn’t find it in the cache, make a request for token & store it -->
+		<choose>
+			<when condition="@(!context.Variables.ContainsKey(&quot;apis_access_token&quot;))">
+				<!-- Make HTTP request to get user profile -->
+				<set-variable name="apis_access_token" value="@{&#xA;                        var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                            var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                            DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                            string encodedToken = &quot;&quot;;   &#xA;                            using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                            {   &#xA;                                var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                                var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                                var signature = Convert.ToBase64String(hash);   &#xA;                                encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                            }                   &#xA;                            return encodedToken;&#xA;                }" />
+				<!-- Store result in cache -->
+				<cache-store-value key="@(&quot;management_token&quot;)" value="@((string)context.Variables[&quot;apis_access_token&quot;])" duration="100000" />
+			</when>
+		</choose>
+		<send-request mode="new" response-variable-name="apisresponse" timeout="20" ignore-error="true">
+			<set-url>{{eapim-platform-management-api-baseurl}}/apis?api-version=2018-06-01-preview</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@($"SharedAccessSignature {(string)context.Variables["apis_access_token"]}")</value>
+			</set-header>
+		</send-request>
+		<set-variable name="apisList" value="@(((IResponse)context.Variables[&quot;apisresponse&quot;]).Body.As&lt;JObject&gt;(preserveContent: true).ToString())" />
+		<return-response>
+			<set-status code="200" reason="Call OK" />
+			<set-body>@($"response: {(string)context.Variables["apisList"]}")</set-body>
+		</return-response>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>

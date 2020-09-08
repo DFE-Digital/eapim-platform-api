@@ -1,0 +1,151 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="userName" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userName = inBody.GetValue(&quot;userName&quot;).ToString();&#xA;            return userName;&#xA;        }" />
+		<set-variable name="userID" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userID = inBody.GetValue(&quot;userID&quot;).ToString();&#xA;            return userID;&#xA;        }" />
+		<set-variable name="userEmail" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userEmail = inBody.GetValue(&quot;userEmail&quot;).ToString();&#xA;            return userEmail;&#xA;        }" />
+		<set-variable name="organization" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string organization = inBody.GetValue(&quot;organization&quot;).ToString();&#xA;            return organization;&#xA;        }" />
+		<set-variable name="role" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string role = inBody.GetValue(&quot;role&quot;).ToString();&#xA;            return role;&#xA;        }" />
+		<set-variable name="applicationName" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string appName = inBody.GetValue(&quot;applicationName&quot;).ToString();&#xA;            return appName;&#xA;        }" />
+		<set-variable name="description" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string appName = inBody.GetValue(&quot;description&quot;).ToString();&#xA;            return appName;&#xA;        }" />
+		<set-variable name="redirectUri" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string appName = inBody.GetValue(&quot;redirectUri&quot;).ToString();&#xA;            return appName;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
+			<set-url>https://login.microsoftonline.com/{{eapim-platform-api-b2c-graph-tenant}}/oauth2/v2.0/token</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/x-www-form-urlencoded</value>
+			</set-header>
+			<set-body>@{
+                return "client_id={{eapim-platform-api-b2c-graph-clientid}}&amp;scope={{eapim-platform-api-b2c-graph-scope}}&amp;client_secret={{eapim-platform-api-b2c-graph-secret}}&amp;grant_type=client_credentials";
+            }</set-body>
+		</send-request>
+		<set-variable name="acc_token2" value="@{&#xA;        String rawToken = (String)((IResponse)context.Variables[&quot;bearerToken&quot;]).Body.As&lt;JObject&gt;()[&quot;access_token&quot;];&#xA;        return &quot;Bearer &quot;+rawToken;&#xA;        }" />
+		<set-variable name="backend_url" value="@{&#xA;            String userID = (string) context.Variables[&quot;userID&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}&quot;;&#xA;            return backendurl;&#xA;        }" />
+		<set-backend-service base-url="@{&#xA;            return (string) context.Variables[&quot;backend_url&quot;];&#xA;            }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="appsData" mode="new">
+			<set-url>@((string)context.Variables["backend_url"])</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-header name="Authorization" exists-action="override">
+				<value>@((string)context.Variables["acc_token2"])</value>
+			</set-header>
+			<set-body>@{
+                String userID = (string) context.Variables["userID"];
+                String orgName = (string) context.Variables["organization"];
+                String applicationName = (string) context.Variables["applicationName"];
+                String description = (string) context.Variables["description"];
+                String redirectUri = (string) context.Variables["redirectUri"];
+                String appNameToRegister =  "dfedeveloperhub" + "-" + userID + "-" + orgName + "-" + applicationName;
+                var appNameJObject = new JObject();
+                appNameJObject.Add("displayName", appNameToRegister);
+                appNameJObject.Add("description", description);
+                JArray redirectUris = new JArray();
+                redirectUris.Add(redirectUri);
+                JObject redirectUriJObj = new JObject();
+                redirectUriJObj.Add("redirectUris", redirectUris);
+                appNameJObject.Add("web", redirectUriJObj);
+                return appNameJObject.ToString();
+            }</set-body>
+		</send-request>
+		<set-variable name="applicationId" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appsData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;id&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="clientId" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appsData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;appId&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="appdescription" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appsData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;description&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="createdOn" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appsData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;createdDateTime&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="web" value="@{&#xA;            JObject appId = (JObject)((IResponse)context.Variables[&quot;appsData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;web&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="backend_url_generate_password" value="@{&#xA;            String appId = (string) context.Variables[&quot;applicationId&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}&quot;+ &quot;//&quot; + appId + &quot;//addPassword&quot; ;&#xA;            return backendurl;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="appGenData" mode="new">
+			<set-url>@((string)context.Variables["backend_url_generate_password"])</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-header name="Authorization" exists-action="override">
+				<value>@((string)context.Variables["acc_token2"])</value>
+			</set-header>
+			<set-body>{
+                         "passwordCredential": {
+                                "displayName": "Primary"
+                                                }
+                      }</set-body>
+		</send-request>
+		<set-variable name="PrimarySecret" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appGenData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;secretText&quot;];&#xA;            return appId;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="appGenData" mode="new">
+			<set-url>@((string)context.Variables["backend_url_generate_password"])</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-header name="Authorization" exists-action="override">
+				<value>@((string)context.Variables["acc_token2"])</value>
+			</set-header>
+			<set-body>{
+                         "passwordCredential": {
+                                "displayName": "Secondary"
+                                                }
+                      }</set-body>
+		</send-request>
+		<set-variable name="SecondarySecret" value="@{&#xA;            String appId = (String)((IResponse)context.Variables[&quot;appGenData&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;secretText&quot;];&#xA;            return appId;&#xA;        }" />
+		<set-variable name="app_backend_url" value="@{&#xA;            String appID= (string) context.Variables[&quot;applicationId&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}/&quot;+appID;&#xA;            return backendurl;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="CurrentAppDetails" mode="new">
+			<set-url>@((string)context.Variables["app_backend_url"])</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-header name="Authorization" exists-action="override">
+				<value>@((string)context.Variables["acc_token2"])</value>
+			</set-header>
+		</send-request>
+		<set-variable name="passwordCredentials" value="@{&#xA;            JArray passwordCredentials = (JArray)((IResponse)context.Variables[&quot;CurrentAppDetails&quot;]).Body.As&lt;JObject&gt;(preserveContent: true)[&quot;passwordCredentials&quot;];&#xA;            return passwordCredentials;&#xA;        }" />
+		<return-response response-variable-name="appsData">
+			<set-body>@{
+                String applicationId = (string) context.Variables["applicationId"];
+                String clientId = (string) context.Variables["clientId"];
+                String PrimarySecret = (string) context.Variables["PrimarySecret"];
+                String SecondarySecret = (string) context.Variables["SecondarySecret"];
+                String applicationName = (string) context.Variables["applicationName"];
+                String description = (string) context.Variables["appdescription"];
+                string createdOn = (string) context.Variables["createdOn"];
+                JObject web = (JObject)context.Variables["web"];
+                JArray passwordCredentials = (JArray)context.Variables["passwordCredentials"];
+
+
+                var appDataJObject = new JObject();
+                appDataJObject.Add("clientId", clientId);
+                appDataJObject.Add("PrimarySecret", PrimarySecret);
+                appDataJObject.Add("SecondarySecret", SecondarySecret);
+                appDataJObject.Add("applicationName", applicationName);
+                appDataJObject.Add("applicationId", applicationId);
+                appDataJObject.Add("description", description);
+                appDataJObject.Add("createdOn", createdOn);
+                appDataJObject.Add("web", web);
+                appDataJObject.Add("passwordCredentials",passwordCredentials);
+
+                return appDataJObject.ToString();
+            }</set-body>
+		</return-response>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>

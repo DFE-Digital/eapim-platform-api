@@ -1,0 +1,196 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "logicapp_createuser_name": {
+        "type": "String"
+      },
+      "logicapp_createsubscription_name": {
+        "type": "String"
+      },
+      "management_api_userurl": {
+        "type": "String"
+      },
+      "management_api_subscriptionurl": {
+        "type": "String"
+      }
+  
+    },
+    "variables": {},
+    "resources": [
+      {
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "name": "[parameters('logicapp_createuser_name')]",
+        "location": "westeurope",
+        "tags": {
+          "Environment": "Test",
+          "Parent Business": "Shared IT Core Services",
+          "Service Offering": "Enterprise API Management Service"
+        },
+        "properties": {
+          "state": "Enabled",
+          "definition": {
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {},
+            "triggers": {
+              "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                  "schema": {
+                    "properties": {
+                      "properties": {
+                        "properties": {
+                          "Authorization": {
+                            "type": "string"
+                          },
+                          "confirmation": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string"
+                          },
+                          "firstName": {
+                            "type": "string"
+                          },
+                          "lastName": {
+                            "type": "string"
+                          },
+                          "userId": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "actions": {
+              "HTTP": {
+                "runAfter": {},
+                "type": "Http",
+                "inputs": {
+                  "body": {
+                    "properties": {
+                      "confirmation": "signup",
+                      "email": "@{triggerBody()?['properties']?['email']}",
+                      "firstName": "@{triggerBody()?['properties']?['firstName']}",
+                      "lastName": "@{triggerBody()?['properties']?['lastName']}"
+                    }
+                  },
+                  "headers": {
+                    "Authorization": "@triggerBody()?['properties']?['Authorization']",
+                    "Content-Type": "application/json"
+                  },
+                  "method": "PUT",
+                  "uri": "[parameters('management_api_userurl')]"
+                }
+              }
+            },
+            "outputs": {
+  
+  
+            }
+          },
+          "parameters": {}
+        }
+      },
+      {
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "name": "[parameters('logicapp_createsubscription_name')]",
+        "location": "westeurope",
+        "tags": {
+          "Environment": "Test",
+          "Parent Business": "Shared IT Core Services",
+          "Service Offering": "Enterprise API Management Service"
+        },
+        "properties": {
+          "state": "Enabled",
+          "definition": {
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {},
+            "triggers": {
+              "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                  "schema": {
+                    "properties": {
+                      "properties": {
+                        "properties": {
+                          "authorization": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "ownerId": {
+                            "type": "string"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "subscriptionId": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "actions": {
+              "HTTP": {
+                "runAfter": {},
+                "type": "Http",
+                "inputs": {
+                  "body": {
+                    "properties": {
+                      "displayName": "@{triggerBody()?['properties']?['displayName']}",
+                      "ownerId": "@{triggerBody()?['properties']?['ownerId']}",
+                      "scope": "@{triggerBody()?['properties']?['scope']}"
+                    }
+                  },
+                  "headers": {
+                    "Authorization": "@triggerBody()?['properties']?['authorization']",
+                    "Content-Type": "application/json"
+                  },
+                  "method": "PUT",
+                  "uri": "[parameters('management_api_subscriptionurl')]"
+                }
+              },
+              "Response": {
+                "runAfter": {
+                  "HTTP": [
+                    "Succeeded"
+                  ]
+                },
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                  "body": "@body('HTTP')",
+                  "headers": {
+                    "Content-Type": "application/json"
+                  },
+                  "statusCode": "@outputs('HTTP')['statusCode']"
+                }
+              }
+            },
+            "outputs": {}
+          },
+          "parameters": {}
+        }
+      }
+  
+    ]
+  }

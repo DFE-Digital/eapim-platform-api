@@ -1,0 +1,67 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="subscriptionId" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string subId = inBody.GetValue(&quot;subscriptionId&quot;).ToString();&#xA;            return subId;&#xA;        }" />
+		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string environment = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return environment;&#xA;        }" />
+		<set-variable name="isSandbox" value="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;))" />
+		<choose>
+			<when condition="@(context.Variables.GetValueOrDefault&lt;bool&gt;(&quot;isSandbox&quot;))">
+				<set-variable name="del_subscription_backend_url_sandbox" value="@{&#xA;                    string url = &quot;{{eapim-platform-api-sandbox-baseurl}}/Subscription&quot;;&#xA;                    return url;&#xA;                }" />
+				<send-request ignore-error="false" timeout="200" response-variable-name="delSubData-Sandbox">
+					<set-url>@((string)context.Variables["del_subscription_backend_url_sandbox"])</set-url>
+					<set-method>DELETE</set-method>
+					<set-header name="Content-Type" exists-action="override">
+						<value>application/json</value>
+					</set-header>
+					<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+						<value>{{eapim-platform-api-sandbox-subscription-key}}</value>
+					</set-header>
+					<set-body>@{
+                        String subscriptionId  = (string) context.Variables["subscriptionId"]; 
+                        string environment = "production";
+                        JObject props = new JObject();
+                        props.Add("subscriptionId",subscriptionId);
+                        props.Add("environment",environment);
+                        return props.ToString();
+                    }</set-body>
+				</send-request>
+				<return-response response-variable-name="delSubData-Sandbox"></return-response>
+			</when>
+			<otherwise />
+		</choose>
+		<set-variable name="management-api-token" value="@{&#xA;                var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                    var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                    DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                    string encodedToken = &quot;&quot;;   &#xA;                    using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                    {   &#xA;                        var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                        var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                        var signature = Convert.ToBase64String(hash);   &#xA;                        encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                    }                   &#xA;                    return encodedToken;&#xA;        }" />
+		<set-variable name="subscription_backend_url" value="@{&#xA;        String subscriptionId =  (string) context.Variables[&quot;subscriptionId&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/subscriptions/&quot; +subscriptionId + &quot;?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="subData" mode="new">
+			<set-url>@((string)context.Variables["subscription_backend_url"])</set-url>
+			<set-method>DELETE</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@{
+                    String encodedToken  = (string) context.Variables["management-api-token"];    
+                    return encodedToken;
+                }</value>
+			</set-header>
+		</send-request>
+		<return-response response-variable-name="subData" />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>

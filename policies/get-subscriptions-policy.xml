@@ -1,0 +1,185 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="management-api-token" value="@{&#xA;                var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                    var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                    DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                    string encodedToken = &quot;&quot;;   &#xA;                    using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                    {   &#xA;                        var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                        var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                        var signature = Convert.ToBase64String(hash);   &#xA;                        encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                    }                   &#xA;                    return encodedToken;&#xA;        }" />
+		<set-variable name="applicationId" value="@{&#xA;            String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;);&#xA;            return applicationId;&#xA;        }" />
+		<set-variable name="noLoop" value="@{&#xA;                string value = context.Request.Headers.GetValueOrDefault(&quot;NoLoop&quot;,&quot;False&quot;) ;&#xA;                return value.ToLower().Equals(&quot;true&quot;);&#xA;        }" />
+		<set-variable name="checkUser_backend_url" value="@{&#xA;        String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;);&#xA;        applicationId = applicationId.Trim('\'');&#xA;        applicationId = &quot;ddhub-&quot;+ applicationId + &quot;-eapim-com&quot;;&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/users/&quot; +applicationId + &quot;?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="userData" mode="new">
+			<set-url>@((string)context.Variables["checkUser_backend_url"])</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@{
+                    String encodedToken  = (string) context.Variables["management-api-token"];    
+                    return encodedToken;
+                }</value>
+			</set-header>
+		</send-request>
+		<set-variable name="userNotFound" value="@{&#xA;            Boolean result = false;&#xA;            var userDataToRead = ((IResponse)context.Variables[&quot;userData&quot;]).Body.As&lt;JObject&gt;();&#xA;            if(userDataToRead[&quot;error&quot;] != null)&#xA;            {&#xA;                result = true;&#xA;            }&#xA;            else&#xA;            {&#xA;                result = false;&#xA;            }&#xA;            return result;&#xA;&#xA;        }" />
+		<choose>
+			<when condition="@(context.Variables.GetValueOrDefault&lt;bool&gt;(&quot;userNotFound&quot;))">
+				<send-request ignore-error="false" timeout="200" response-variable-name="userData">
+					<set-url>{{eapim-platform-api-create-user-logic-app}}</set-url>
+					<set-method>POST</set-method>
+					<set-header name="Content-Type" exists-action="override">
+						<value>application/json</value>
+					</set-header>
+					<set-body>@{
+                        String encodedToken  = (string) context.Variables["management-api-token"]; 
+                        String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault("applicationId");
+                        applicationId = applicationId.Trim('\'');
+                        applicationId = "ddhub-"+ applicationId + "-eapim-com";                        
+                        JObject result = new JObject();
+                        JObject props = new JObject();
+                        props.Add("Authorization",encodedToken);
+                        props.Add("userId",applicationId);
+                        props.Add("firstName","ddhub");
+                        props.Add("lastName",applicationId);
+                        props.Add("email","ddhub."+applicationId+"@eapim.com");
+                        props.Add("confirmartion", "signup");
+                        result.Add("properties",props);
+                        return result.ToString();
+                    }</set-body>
+				</send-request>
+			</when>
+			<otherwise />
+		</choose>
+		<set-variable name="subscriptions_backend_url" value="@{&#xA;        String applicationId =  (string) context.Variables[&quot;applicationId&quot;]; &#xA;        applicationId = applicationId.Trim('\'');&#xA;        applicationId = &quot;ddhub-&quot;+ applicationId + &quot;-eapim-com&quot;;&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/subscriptions?$filter=ownerId eq '&quot; +applicationId + &quot;'&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<send-request ignore-error="true" timeout="60" response-variable-name="subsData" mode="new">
+			<set-url>@((string)context.Variables["subscriptions_backend_url"])</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@{
+                    String encodedToken  = (string) context.Variables["management-api-token"];    
+                    return encodedToken;
+                }</value>
+			</set-header>
+		</send-request>
+		<set-variable name="subscriptions_backend_url_sandbox" value="@{&#xA;        String applicationId =  (string) context.Variables[&quot;applicationId&quot;]; &#xA;        applicationId = applicationId.Trim('\'');&#xA;        string url = &quot;{{eapim-platform-api-sandbox-baseurl}}/Subscriptions?applicationId=&quot;+ applicationId;&#xA;        return url;&#xA;        }" />
+		<choose>
+			<when condition="@(((bool)context.Variables[&quot;noLoop&quot;]).Equals(false))">
+				<send-request ignore-error="true" timeout="60" response-variable-name="subsData-Sandbox" mode="new">
+					<set-url>@((string)context.Variables["subscriptions_backend_url_sandbox"])</set-url>
+					<set-method>GET</set-method>
+					<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+						<value>{{eapim-platform-api-sandbox-subscription-key}}</value>
+					</set-header>
+					<set-header name="noLoop" exists-action="override">
+						<value>true</value>
+					</set-header>
+					<set-header name="Content-Type" exists-action="override">
+						<value>application/json</value>
+					</set-header>
+				</send-request>
+			</when>
+			<otherwise>
+				<set-variable name="subsData-Sandbox_em" value="@{&#xA;                        JObject result = new JObject();&#xA;                        JArray vals = new JArray();&#xA;                        result.Add(&quot;values&quot;,vals);&#xA;                        return result;&#xA;                    }" />
+			</otherwise>
+		</choose>
+		<return-response response-variable-name="subsData">
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-body>@{
+  		        var subsDataToRead = ((IResponse)context.Variables["subsData"]).Body.As&lt;JObject&gt;();
+                bool noloop =  (bool) context.Variables["noLoop"]; 
+                JObject subsDataToReadSandbox = new JObject();
+                if(noloop)
+                {
+                    subsDataToReadSandbox =  (JObject) context.Variables["subsData-Sandbox_em"]; 
+                }
+                else
+                {
+  		            subsDataToReadSandbox = ((IResponse)context.Variables["subsData-Sandbox"]).Body.As&lt;JObject&gt;();
+                }
+               JArray sandboxsubscriptions = (JArray)subsDataToReadSandbox.SelectToken("values");
+
+            	JArray subsArray = new JArray();    
+            	JObject subsDataToReturn = new JObject();
+            	JArray items = (JArray)subsDataToRead["value"];
+
+            	foreach (JObject o in items)
+            	{
+              	  JObject subsDataToWrite = new JObject();
+               	  string sID = o["id"].ToString();
+              	  string sName = o["name"].ToString();
+                  JObject props = (JObject)o["properties"];  
+               	  string sState = props["state"].ToString();
+                  string sCreatedOn = String.Empty;
+                  if (props["createdDate"] != null) 
+                  { 
+                    sCreatedOn = props["createdDate"].ToString();  
+                  }
+
+                  string sEndDate = String.Empty;
+                  if (props["endDate"] != null) 
+                  { 
+                    sEndDate = props["endDate"].ToString();  
+                  }
+
+                  string sStartDate = String.Empty;
+                  if (props["startDate"] != null) 
+                  { 
+                    sStartDate = props["startDate"].ToString();  
+                  }
+
+
+                  string sExpDate = String.Empty;
+                  if (props["expirationDate"] != null) 
+                  { 
+                    sExpDate = props["expirationDate"].ToString();  
+                  }
+
+
+                  string sScope = String.Empty;
+                  if (props["scope"] != null) 
+                  { 
+                    sScope = props["scope"].ToString();  
+                  }
+
+                  subsDataToWrite.Add("name", sName);
+                  subsDataToWrite.Add("state", sState);
+                  subsDataToWrite.Add("environment", "Production");
+                  subsDataToWrite.Add("createdDate", sCreatedOn);
+                  subsDataToWrite.Add("id",sID.Substring(sID.LastIndexOf("/")+1));
+                  subsDataToWrite.Add("startDate",sStartDate);
+                  subsDataToWrite.Add("expirationDate",sExpDate);
+                  subsDataToWrite.Add("apiName",sScope.Substring(sScope.LastIndexOf("/")+1));
+                  subsArray.Add(subsDataToWrite);
+            	}
+
+                if( sandboxsubscriptions != null)
+                {
+                    foreach(JObject sandboxSub in sandboxsubscriptions) 
+                    {
+                        sandboxSub["environment"] = "Sandbox";
+                        subsArray.Add(sandboxSub);
+                    }            
+                }
+	            subsDataToReturn.Add("values",subsArray);
+                return subsDataToReturn.ToString();
+            }</set-body>
+		</return-response>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
