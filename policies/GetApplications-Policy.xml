@@ -33,7 +33,7 @@
         </set-header> 
         <set-variable name="acc_token" value="@("Bearer "+ (String)((IResponse)context.Variables["bearerToken"]).Body.As<JObject>()["access_token"])" /> -->
 		<set-variable name="acc_token2" value="@{&#xA;        String rawToken = (String)((IResponse)context.Variables[&quot;bearerToken&quot;]).Body.As&lt;JObject&gt;()[&quot;access_token&quot;];&#xA;        return &quot;Bearer &quot;+rawToken;&#xA;        }" />
-		<set-variable name="backend_url" value="@{&#xA;            String userID = (string) context.Variables[&quot;userID&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}?$filter=startswith(displayName,'&quot;+ userID + &quot;')&quot;;&#xA;            return backendurl;&#xA;        }" />
+		<set-variable name="backend_url" value="@{&#xA;            String userID = (string) context.Variables[&quot;userID&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}?$filter=startswith(displayName,'&quot;+&quot;dfedeveloperhub&quot; + &quot;-&quot; + userID + &quot;')&quot;;&#xA;            return backendurl;&#xA;        }" />
 		<set-backend-service base-url="@{&#xA;            return (string) context.Variables[&quot;backend_url&quot;];&#xA;            }" />
 		<send-request ignore-error="true" timeout="20" response-variable-name="appsData" mode="new">
 			<set-url>@((string)context.Variables["backend_url"])</set-url>
@@ -60,22 +60,21 @@
                	  string sAppName = o["displayName"].ToString();
                   string sCreatedOn = o["createdDateTime"].ToString();  
                   string sDescription = o["description"].ToString();  
+                  JObject web = (JObject)o["web"];
+                  JArray passwordCredentials = (JArray)o["passwordCredentials"];
+
                	  appsDataToWrite.Add("applicationId", sAppId);
                   appsDataToWrite.Add("clientId", sClientID);
                   appsDataToWrite.Add("applicationName", sAppName);
                   appsDataToWrite.Add("description", sDescription);
                   appsDataToWrite.Add("createdOn", sCreatedOn);
+                  appsDataToWrite.Add("web", web);
+                  appsDataToWrite.Add("passwordCredentials",passwordCredentials);
 
                   appsArray.Add(appsDataToWrite);
             	}
 	            appsDataToReturn.Add("Applications", appsArray);
                 return appsDataToReturn.ToString();
-            }</set-body>
-		</return-response>
-		<return-response response-variable-name="appsData">
-			<set-body>@{
-            String response = (String)((IResponse)context.Variables["appsData"]).Body.As&lt;JObject&gt;().ToString();
-            return response;
             }</set-body>
 		</return-response>
 	</inbound>

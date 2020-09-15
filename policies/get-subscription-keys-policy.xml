@@ -16,6 +16,14 @@
 		<set-variable name="management-api-token" value="@{&#xA;                var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                    var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                    DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                    string encodedToken = &quot;&quot;;   &#xA;                    using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                    {   &#xA;                        var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                        var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                        var signature = Convert.ToBase64String(hash);   &#xA;                        encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                    }                   &#xA;                    return encodedToken;&#xA;        }" />
 		<set-variable name="subscriptionId" value="@{&#xA;            String subscriptionId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;subscriptionId&quot;);&#xA;            return subscriptionId;&#xA;        }" />
 		<set-variable name="environment" value="@{&#xA;            String environment =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;environment&quot;);&#xA;            return environment;&#xA;        }" />
+		<!-- validate environment-->
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid environment specified." />
+				</return-response>
+			</when>
+		</choose>
 		<set-variable name="isSandbox" value="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;))" />
 		<choose>
 			<when condition="@(context.Variables.GetValueOrDefault&lt;bool&gt;(&quot;isSandbox&quot;))">

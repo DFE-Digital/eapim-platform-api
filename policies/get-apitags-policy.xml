@@ -15,14 +15,13 @@
 		<base />
 		<set-variable name="apiName" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string subId = inBody.GetValue(&quot;apiName&quot;).ToString();&#xA;            return subId;&#xA;        }" />
 		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string environment = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return environment;&#xA;        }" />
-		<cache-lookup-value key="@(&quot;management_token&quot;)" variable-name="apis_access_token" />
 		<!-- If API Management doesn’t find it in the cache, make a request for token & store it -->
 		<choose>
 			<when condition="@(!context.Variables.ContainsKey(&quot;apis_access_token&quot;))">
 				<!-- Make HTTP request to get user profile -->
 				<set-variable name="apis_access_token" value="@{&#xA;                        var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                            var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                            DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                            string encodedToken = &quot;&quot;;   &#xA;                            using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                            {   &#xA;                                var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                                var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                                var signature = Convert.ToBase64String(hash);   &#xA;                                encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                            }                   &#xA;                            return encodedToken;&#xA;                }" />
 				<!-- Store result in cache -->
-				<cache-store-value key="@(&quot;management_token&quot;)" value="@((string)context.Variables[&quot;apis_access_token&quot;])" duration="100000" />
+				<cache-store-value key="@(&quot;management_token&quot;)" value="@((string)context.Variables[&quot;apis_access_token&quot;])" duration="60" />
 			</when>
 		</choose>
 		<set-query-parameter name="api-version" exists-action="skip">
@@ -36,7 +35,7 @@
 		</set-header>
 		<set-backend-service base-url="{{eapim-platform-management-api-baseurl}}" />
 		<set-variable name="apitags_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/apis/&quot; +apiName + &quot;/tags?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
-		<send-request ignore-error="true" timeout="20" response-variable-name="tagsData" mode="new">
+		<send-request ignore-error="true" timeout="20" response-variable-name="tagsDataForAPI" mode="new">
 			<set-url>@((string)context.Variables["apitags_backend_url"])</set-url>
 			<set-method>GET</set-method>
 			<set-header name="Authorization" exists-action="override">
@@ -46,7 +45,42 @@
                 }</value>
 			</set-header>
 		</send-request>
-		<return-response response-variable-name="tagsData" />
+		<set-variable name="apitags_namedvalues_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/namedValues?$filter=contains(properties/displayName, '&quot; +apiName + &quot;')&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<send-request ignore-error="true" timeout="20" response-variable-name="tagsDataFromNamedValues" mode="new">
+			<set-url>@((string)context.Variables["apitags_namedvalues_backend_url"])</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@{
+                    String encodedToken  = (string) context.Variables["apis_access_token"];    
+                    return encodedToken;
+                }</value>
+			</set-header>
+		</send-request>
+		<return-response response-variable-name="tagsDataForAPI">
+			<set-body>@{
+  		        JObject tagsDataFromAPI = (JObject)((IResponse)context.Variables["tagsDataForAPI"]).Body.As&lt;JObject&gt;();
+  		        JObject tagsDataFromNamedValues = (JObject)((IResponse)context.Variables["tagsDataFromNamedValues"]).Body.As&lt;JObject&gt;();
+                JArray values1=(JArray)tagsDataFromAPI.SelectToken("value");
+                String apiName  = (string) context.Variables["apiName"];  
+                JArray values2=(JArray)tagsDataFromNamedValues.SelectToken("value");
+                foreach(JObject innerData in values2) 
+                {
+                    JObject props = (JObject)innerData["properties"];
+                    String sName = props["displayName"].ToString(); 
+                    if(sName.Contains("tag")) 
+                    { 
+                        if(sName.IndexOf(apiName) &gt;= 0)
+                        {
+                            sName = sName.Remove(sName.IndexOf(apiName), apiName.Length+5);
+                            props["displayName"] = sName;
+                            innerData["properties"] = props;
+                        } 
+                     } 
+                    values1.Add(innerData);
+                }
+                return tagsDataFromAPI.ToString();
+            }</set-body>
+		</return-response>
 	</inbound>
 	<backend>
 		<base />
