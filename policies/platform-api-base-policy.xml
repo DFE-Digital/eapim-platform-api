@@ -13,24 +13,6 @@
 <policies>
 	<inbound>
 		<base />
-		<!--
-		<set-variable name="var-originip" value="@(context.Request.Headers.GetValueOrDefault(&amp;quot;x-forwarded-for&amp;quot;))" />
-		<choose>
-			<when condition="@(context.Variables.GetValueOrDefault&lt;String&gt;(&quot;var-originip&quot;).Contains(&quot;109.153.91.149&quot;))" />
-			<when condition="@(context.Variables.GetValueOrDefault&lt;String&gt;(&quot;var-originip&quot;).Contains(&quot;81.97.54.129&quot;))" />
-			<when condition="@(context.Variables.GetValueOrDefault&lt;String&gt;(&quot;var-originip&quot;).Contains(&quot;109.151.195.123&quot;))" />
-			<when condition="@(context.Variables.GetValueOrDefault&lt;String&gt;(&quot;var-originip&quot;).Contains(&quot;35.176.86.207&quot;))" />
-			<when condition="@(context.Variables.GetValueOrDefault&lt;String&gt;(&quot;var-originip&quot;).Contains(&quot;86.147.252.12&quot;))" />
-			<otherwise>
-				<return-response>
-					<set-status code="401" reason="Client IP Not Authorized" />
-					<set-header name="x-origin-ip" exists-action="override">
-						<value>@(context.Variables.GetValueOrDefault&lt;String&gt;("var-originip"))</value>
-					</set-header>
-					<set-body />
-				</return-response>
-			</otherwise>
-		</choose> -->
 		<set-backend-service base-url="{{eapim-platform-management-api-baseurl}}/apis" />
 	</inbound>
 	<backend>
