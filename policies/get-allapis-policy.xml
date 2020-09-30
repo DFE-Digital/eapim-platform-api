@@ -27,7 +27,7 @@
 			<set-url>{{eapim-platform-management-api-baseurl}}/apis?api-version=2018-06-01-preview</set-url>
 			<set-method>GET</set-method>
 			<set-header name="Authorization" exists-action="override">
-				<value>@($"SharedAccessSignature {(string)context.Variables["apis_access_token"]}")</value>
+				<value>@($"{(string)context.Variables["apis_access_token"]}")</value>
 			</set-header>
 		</send-request>
 		<set-variable name="apisList" value="@(((IResponse)context.Variables[&quot;apisresponse&quot;]).Body.As&lt;JObject&gt;(preserveContent: true).ToString())" />

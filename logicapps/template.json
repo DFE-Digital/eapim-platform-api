@@ -13,9 +13,11 @@
       },
       "management_api_subscriptionurl": {
         "type": "String"
-      }
-  
-    },
+      },
+      "logicapp_send_email_name": {
+        "type": "String"
+      }      
+      },
     "variables": {},
     "resources": [
       {
@@ -190,7 +192,99 @@
           },
           "parameters": {}
         }
-      }
+      },
+      {
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "name": "[parameters('logicapp_send_email_name')]",
+        "location": "westeurope",
+        "tags": {
+          "Portfolio": "Operations Group",
+          "Product": "Enterprise API Management Service",
+          "Service": "CIPS",
+          "Environment": "development",
+          "Service Line": "Chief Technology Officer and Chief Architect",
+          "Service Offering": "CIP - API Management Service",
+          "Parent Business": "Shared IT core services"
+        },
+        "properties": {
+          "state": "Enabled",
+          "definition": {
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {},
+            "triggers": {
+              "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                  "schema": {
+                    "properties": {
+                      "authorizationkey": {
+                        "type": "string"
+                      },
+                      "content-type": {
+                        "type": "string"
+                      },
+                      "email-content": {
+                        "type": "string"
+                      },
+                      "email-from": {
+                        "type": "string"
+                      },
+                      "email-to": {
+                        "type": "string"
+                      },
+                      "subject": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "actions": {
+              "HTTP": {
+                "runAfter": {},
+                "type": "Http",
+                "inputs": {
+                  "body": {
+                    "content": [
+                      {
+                        "type": "@{triggerBody()?['content-type']}",
+                        "value": "@{triggerBody()?['email-content']}"
+                      }
+                    ],
+                    "from": {
+                      "email": "@{triggerBody()?['email-from']}"
+                    },
+                    "personalizations": [
+                      {
+                        "to": [
+                          {
+                            "email": "@{triggerBody()?['email-to']}"
+                          }
+                        ]
+                      }
+                    ],
+                    "subject": "@{triggerBody()?['subject']}"
+                  },
+                  "headers": {
+                    "Authorization": "Bearer @{triggerBody()?['authorizationkey']}",
+                    "Host": "api.sendgrid.com",
+                    "content-type": "application/json"
+                  },
+                  "method": "POST",
+                  "uri": "https://api.sendgrid.com/v3/mail/send"
+                }
+              }
+            },
+            "outputs": {}
+          },
+          "parameters": {}
+        }
+      }      
   
     ]
   }

@@ -1,0 +1,93 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="ObjectId" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string ObjectId = inBody.GetValue(&quot;objectId&quot;).ToString();&#xA;            return ObjectId;&#xA;        }" />
+		<set-variable name="toEmail" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string toEmail = inBody.GetValue(&quot;email&quot;).ToString();&#xA;            return toEmail;&#xA;        }" />
+		<!-- validate parameters-->
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;ObjectId&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid ObjectId specified." />
+				</return-response>
+			</when>
+		</choose>
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;toEmail&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid (To) email specified." />
+				</return-response>
+			</when>
+		</choose>
+		<!-- get verification url-->
+		<send-request ignore-error="true" timeout="200" response-variable-name="verifyUrlResponse" mode="new">
+			<set-url>{{eapim-platform-api-invitation-func-app-url}}</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-body>@{
+                string ObjectId = (string)context.Variables["ObjectId"];	
+                JObject data = new JObject();
+                data.Add("ObjectId", ObjectId);
+                return data.ToString();
+        }</set-body>
+		</send-request>
+		<!-- Get verification url -->
+		<set-variable name="verifyUrl" value="@(((IResponse)context.Variables[&quot;verifyUrlResponse&quot;]).Body.As&lt;String&gt;(preserveContent: true).ToString())" />
+		<set-variable name="send-verification-email-url" value="@{&#xA;            string url = &quot;{{eapim-platform-api-production-baseurl}}/Email&quot;;&#xA;            return url;&#xA;        }" />
+		<set-variable name="fromEmail" value="@{&#xA;            string email = &quot;{{eapim-platform-api-b2c-invitation-email-from}}&quot;;&#xA;            return email;&#xA;        }" />
+		<set-variable name="emailSubject" value="@{&#xA;            string email = &quot;{{eapim-platform-api-b2c-invitation-email-subject}}&quot;;&#xA;            return email;&#xA;        }" />
+		<set-variable name="send-verification-email-url" value="@{&#xA;            string url = &quot;{{eapim-platform-api-production-baseurl}}/Email&quot;;&#xA;            return url;&#xA;        }" />
+		<set-variable name="emailContent" value="@{&#xA;            string content = &quot;{{eapim-platform-api-b2c-invitation-email-content}}&quot;;&#xA;            return content;&#xA;        }" />
+		<!-- Send verification email -->
+		<send-request ignore-error="true" timeout="200" response-variable-name="sendEmailResponse" mode="new">
+			<set-url>@((string)context.Variables["send-verification-email-url"])</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+				<value>{{eapim-platform-api-production-subscription-key}}</value>
+			</set-header>
+			<set-body>@{
+                 string verifyUrl = (string)context.Variables["verifyUrl"];
+                 string toEmail = (string)context.Variables["toEmail"];
+                 string fromEmail = (string)context.Variables["fromEmail"];
+                 string emailSubject = (string)context.Variables["emailSubject"];
+                 string emailContentBase = (string)context.Variables["emailContent"];
+                 string name = toEmail.Substring(0,toEmail.IndexOf('@'));
+
+
+                 JObject data = new JObject();
+                 data.Add("email-from",fromEmail);
+                 data.Add("email-to",toEmail);
+                 data.Add("subject",emailSubject);
+                 data.Add("content-type","text/html");
+                 data.Add("email-content","Welcome "+ name + ", " + emailContentBase + ": "+ verifyUrl);
+                return data.ToString();
+        }</set-body>
+		</send-request>
+		<return-response response-variable-name="sendEmailResponse" />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
