@@ -43,11 +43,10 @@
 			</set-header>
 			<set-body>@{
                 String userID = (string) context.Variables["userID"];
-                String orgName = (string) context.Variables["organization"];
                 String applicationName = (string) context.Variables["applicationName"];
                 String description = (string) context.Variables["description"];
                 String redirectUri = (string) context.Variables["redirectUri"];
-                String appNameToRegister =  "dfedeveloperhub" + "-" + userID + "-" + orgName + "-" + applicationName;
+                String appNameToRegister =  "dfedeveloperhub" + "-" + userID +  "-" + applicationName;
                 var appNameJObject = new JObject();
                 appNameJObject.Add("displayName", appNameToRegister);
                 appNameJObject.Add("description", description);
