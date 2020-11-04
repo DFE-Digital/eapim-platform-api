@@ -1,0 +1,89 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string env = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return env;&#xA;        }" />
+		<set-variable name="Id" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string Id = inBody.GetValue(&quot;Id&quot;).ToString();&#xA;            return Id;&#xA;        }" />
+		<!-- validate environment-->
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid environment specified." />
+				</return-response>
+			</when>
+			<when condition="@(!(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;production&quot;) || ((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;))) ">
+				<return-response>
+					<set-status code="500" reason="Invalid environment specified." />
+				</return-response>
+			</when>
+		</choose>
+		<set-variable name="isSandbox" value="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;))" />
+		<choose>
+			<when condition="@(context.Variables.GetValueOrDefault&lt;bool&gt;(&quot;isSandbox&quot;))">
+				<set-variable name="get_subscriptions_backend_url_sandbox" value="@{&#xA;                    string url = &quot;{{eapim-platform-api-sandbox-baseurl}}/GetPendingSubscriptions&quot;;&#xA;                    return url;&#xA;                }" />
+				<send-request ignore-error="false" timeout="200" response-variable-name="getSubData-Sandbox">
+					<set-url>@((string)context.Variables["get_subscriptions_backend_url_sandbox"])</set-url>
+					<set-method>POST</set-method>
+					<set-header name="Content-Type" exists-action="override">
+						<value>application/json</value>
+					</set-header>
+					<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+						<value>{{eapim-platform-api-sandbox-subscription-key}}</value>
+					</set-header>
+					<set-body>@{
+                        string environment = "production";
+                        JObject props = new JObject();
+                        props.Add("environment",environment);
+                        return props.ToString();
+                    }</set-body>
+				</send-request>
+				<return-response response-variable-name="getSubData-Sandbox">
+					<set-body>@{
+                            var subsDataToRead = (JObject) ((IResponse)context.Variables["getSubData-Sandbox"]).Body.As&lt;JObject&gt;();
+                            JObject valueObj = (JObject) subsDataToRead["value"];
+                            valueObj["environment"] = "Sandbox";
+                            return subsDataToRead.ToString();
+                        }</set-body>
+				</return-response>
+			</when>
+			<otherwise />
+		</choose>
+		<set-variable name="management-api-token" value="@{&#xA;                var id = &quot;{{eapim-platform-api-management-identifier}}&quot;;   &#xA;                    var key = &quot;{{eapim-platform-api-management-key}}&quot;;   &#xA;                    DateTime expiry = DateTime.UtcNow.AddDays(10);&#xA;                    string encodedToken = &quot;&quot;;   &#xA;                    using (var encoder = new System.Security.Cryptography.HMACSHA512(Encoding.UTF8.GetBytes(key)))   &#xA;                    {   &#xA;                        var dataToSign = id + &quot;\n&quot; + expiry.ToString(&quot;O&quot;);   &#xA;                        var hash = encoder.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));   &#xA;                        var signature = Convert.ToBase64String(hash);   &#xA;                        encodedToken = string.Format(&quot;SharedAccessSignature uid={0}&amp;ex={1:o}&amp;sn={2}&quot;, id, expiry, signature);   &#xA;                    }                   &#xA;                    return encodedToken;&#xA;        }" />
+		<set-variable name="backend_url" value="@{&#xA;            String Id = (string)context.Variables[&quot;Id&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-management-api-baseurl}}//subscriptions//&quot; + Id + &quot;?&amp;api-version=2019-12-01&quot;;&#xA;            return backendurl;&#xA;        }" />
+		<send-request ignore-error="true" timeout="200" response-variable-name="subsData">
+			<set-url>@((string)context.Variables["backend_url"])</set-url>
+			<set-method>GET</set-method>
+			<set-header name="Authorization" exists-action="override">
+				<value>@((string)context.Variables["management-api-token"])</value>
+			</set-header>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+		</send-request>
+		<return-response response-variable-name="subsData">
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+		</return-response>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
