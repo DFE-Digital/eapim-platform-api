@@ -16,7 +16,6 @@
 		<set-variable name="userName" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userName = inBody.GetValue(&quot;userName&quot;).ToString();&#xA;            return userName;&#xA;        }" />
 		<set-variable name="userID" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userID = inBody.GetValue(&quot;userID&quot;).ToString();&#xA;            return userID;&#xA;        }" />
 		<set-variable name="userEmail" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userEmail = inBody.GetValue(&quot;userEmail&quot;).ToString();&#xA;            return userEmail;&#xA;        }" />
-		<set-variable name="role" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string role = inBody.GetValue(&quot;role&quot;).ToString();&#xA;            return role;&#xA;        }" />
 		<send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
 			<set-url>https://login.microsoftonline.com/{{eapim-platform-api-b2c-graph-tenant}}/oauth2/v2.0/token</set-url>
 			<set-method>POST</set-method>
@@ -69,6 +68,7 @@
                   appsDataToWrite.Add("createdOn", sCreatedOn);
                   appsDataToWrite.Add("web", web);
                   appsDataToWrite.Add("passwordCredentials",passwordCredentials);
+
 
                   appsArray.Add(appsDataToWrite);
             	}

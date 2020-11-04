@@ -68,14 +68,17 @@
                  string emailSubject = (string)context.Variables["emailSubject"];
                  string emailContentBase = (string)context.Variables["emailContent"];
                  string name = toEmail.Substring(0,toEmail.IndexOf('@'));
-
+                 string emaildata = "&lt;p&gt;Welcome "+ name + ", " + emailContentBase + "&lt;/p&gt;: "+ "&lt;p style=\"page-break-before: always;\"&gt;Click On: &lt;a href= \"";
+                 emaildata = emaildata + verifyUrl + "\"&lt;/a&gt;&lt;/p&gt;";
 
                  JObject data = new JObject();
                  data.Add("email-from",fromEmail);
                  data.Add("email-to",toEmail);
                  data.Add("subject",emailSubject);
                  data.Add("content-type","text/html");
-                 data.Add("email-content","Welcome "+ name + ", " + emailContentBase + ": "+ verifyUrl);
+                // data.Add("email-content",emaildata);
+                 
+                 data.Add("email-content","&lt;p&gt;Welcome "+ name + ", " + emailContentBase + "&lt;/p&gt;: "+ verifyUrl);
                 return data.ToString();
         }</set-body>
 		</send-request>
