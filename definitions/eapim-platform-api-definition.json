@@ -80,115 +80,125 @@
       },
       "/UpdateApplication": {
         "post": {
-          "operationId": "updateapplication",
-          "summary": "UpdateApplication",
-          "responses": {
-            "200": {
-              "description": "UpdateApplication"
+                "description": "UpdateApplication",
+                "operationId": "updateapplication",
+                "summary": "UpdateApplication",
+                "responses": {
+                    "200": {
+                        "description": "UpdateApplication"
+                    }
+                }
             }
-          }
-        }
-      },
-      "/DeleteApplication": {
-        "delete": {
-          "operationId": "deleteapplication",
-          "summary": "DeleteApplication",
-          "responses": {
-            "200": {
-              "description": "DeleteApplication"
-            }
-          }
-        }
-      },
-      "/GenerateApplicationSecret": {
-        "post": {
-          "description": "Generates a new secret for an application",
-          "operationId": "generateapplicationsecret",
-          "summary": "GenerateApplicationSecret",
-          "responses": {
-            "200": {
-              "description": "GenerateApplicationSecret"
-            }
-          }
-        }
-      },
-      "/Account": {
-        "delete": {
-          "operationId": "account",
-          "summary": "Account",
-          "responses": {
-            "200": {
-              "description": "Account"
-            }
-          }
-        }
-      },
-      "/ApplicationByID": {
-        "get": {
-          "operationId": "Applicationbyid",
-          "summary": "ApplicationByID",
-          "responses": {
-            "200": {
-              "description": "ApplicationByID"
-            }
-          }
-        }
-      },
-      "/Subscriptions": {
-        "get": {
-          "operationId": "subscriptions",
-          "summary": "Subscriptions",
-          "responses": {
-            "200": {
-              "description": "Subscriptions"
-            }
-          }
-        }
-      },
-      "/subscriptionkeys": {
-        "get": {
-          "operationId": "subscriptionkeys",
-          "summary": "SubscriptionKeys",
-          "responses": {
-            "200": {
-              "description": "subscriptionkeys"
-            }
-          }
-        }
-      },
-      "/subscription": {
-        "delete": {
-          "operationId": "subscription",
-          "summary": "Subscription",
-          "responses": {
-            "200": {
-              "description": "delete subscription"
-            }
-          }
         },
-        "post": {
-          "operationId": "create-subscription",
-          "summary": "create Subscription",
-          "responses": {
-            "200": {
-              "description": "create subscription"
+        "/DeleteApplication": {
+            "delete": {
+                "description": "DeleteApplication",
+                "operationId": "deleteapplication",
+                "summary": "DeleteApplication",
+                "responses": {
+                    "200": {
+                        "description": "DeleteApplication"
+                    }
+                }
             }
-          }
-        }
-      },
-      "/GetApiTags": {
-        "post": {
-          "operationId": "getapitags",
-          "summary": "GetApiTags",
-          "responses": {
-            "200": {
-              "description": "GetApiTags"
+        },
+        "/GenerateApplicationSecret": {
+            "post": {
+                "description": "Generates a new secret for an application",
+                "operationId": "generateapplicationsecret",
+                "summary": "GenerateApplicationSecret",
+                "responses": {
+                    "200": {
+                        "description": "GenerateApplicationSecret"
+                    }
+                }
             }
-          }
-        }
+        },
+        "/Account": {
+            "delete": {
+                "description": "Account",
+                "operationId": "account",
+                "summary": "Account",
+                "responses": {
+                    "200": {
+                        "description": "Account"
+                    }
+                }
+            }
+        },
+        "/ApplicationByID": {
+            "get": {
+                "description": "ApplicationByID",
+                "operationId": "Applicationbyid",
+                "summary": "ApplicationByID",
+                "responses": {
+                    "200": {
+                        "description": "ApplicationByID"
+                    }
+                }
+            }
+        },
+        "/Subscriptions": {
+            "get": {
+                "description": "Subscriptions",
+                "operationId": "subscriptions",
+                "summary": "Subscriptions",
+                "responses": {
+                    "200": {
+                        "description": "Subscriptions"
+                    }
+                }
+            }
+        },
+        "/subscriptionkeys": {
+            "get": {
+                "description": "SubscriptionKeys",
+                "operationId": "subscriptionkeys",
+                "summary": "SubscriptionKeys",
+                "responses": {
+                    "200": {
+                        "description": "subscriptionkeys"
+                    }
+                }
+            }
+        },
+        "/subscription": {
+            "delete": {
+                "description": "Subscription",
+                "operationId": "subscription",
+                "summary": "Subscription",
+                "responses": {
+                    "200": {
+                        "description": "delete subscription"
+                    }
+                }
+            },
+            "post": {
+                "description": "create Subscription",
+                "operationId": "create-subscription",
+                "summary": "create Subscription",
+                "responses": {
+                    "200": {
+                        "description": "create subscription"
+                    }
+                }
+            }
+        },
+        "/GetApiTags": {
+            "post": {
+                "description": "GetApiTags",
+                "operationId": "getapitags",
+                "summary": "GetApiTags",
+                "responses": {
+                    "200": {
+                        "description": "GetApiTags"
+                    }
+                }
+            }
         },
         "/Email": {
             "post": {
+                "description": "Email",
                 "operationId": "email",
                 "summary": "Email",
                 "responses": {
@@ -206,6 +216,39 @@
                 "responses": {
                     "200": {
                         "description": "Developer Hub Invitation Email"
+                    }
+                }
+            }
+        },
+        "/ApplicationByObjectID": {
+            "get": {
+                "operationId": "applicationbyobjectid",
+                "summary": "ApplicationByObjectID",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/UserByObjectID": {
+            "get": {
+                "operationId": "userbyobjectid",
+                "summary": "UserByObjectID",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/subscriptionbyId": {
+            "post": {
+                "operationId": "getsubscriptionbyid",
+                "summary": "GetSubscriptionByID",
+                "responses": {
+                    "200": {
+                        "description": null
                     }
                 }
             }
