@@ -23,7 +23,7 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
-			<when condition="@(!(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;production&quot;) || ((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;) || ((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;delegated&quot;)  )) ">
+			<when condition="@(!(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;production&quot;) || ((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;) || ((string)context.Variables[&quot;environment&quot;]).ToLower().Contains(&quot;delegated&quot;)  )) ">
 				<return-response>
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
@@ -45,7 +45,7 @@
 					<set-body>@{
                         String applicationId  = (string) context.Variables["applicationId"]; 
                         String apiName =  (string) context.Variables["apiName"]; 
-                        string environment = "delegated";
+                        string environment = "delegated-{{eapim-platform-api-production-baseurl}}:{{eapim-platform-api-production-subscription-key}}";
                         JObject props = new JObject();
                         props.Add("applicationId",applicationId);
                         props.Add("apiName",apiName);
@@ -90,7 +90,7 @@
                         return result.ToString();
                     }</set-body>
 		</send-request>
-		<set-variable name="subscriptionresponse" value="@{&#xA;                var subsDataToRead = ((IResponse)context.Variables[&quot;subsData&quot;]).Body.As&lt;JObject&gt;();&#xA;            &#x9;JArray subsArray = new JArray();&#xA;            &#x9;JObject subsDataToReturn = new JObject();&#xA;            &#x9;JObject o = (JObject)subsDataToRead;&#xA;&#xA;&#xA;              &#x9;  JObject subsDataToWrite = new JObject();&#xA;               &#x9;  string sID = o[&quot;id&quot;].ToString();&#xA;              &#x9;  string sName = o[&quot;name&quot;].ToString();&#xA;                  JObject props = (JObject)o[&quot;properties&quot;];  &#xA;               &#x9;  string sState = props[&quot;state&quot;].ToString();&#xA;                  string sCreatedOn = String.Empty;&#xA;                  if (props[&quot;createdDate&quot;] != null) &#xA;                  { &#xA;                    sCreatedOn = props[&quot;createdDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  string sEndDate = String.Empty;&#xA;                  if (props[&quot;endDate&quot;] != null) &#xA;                  { &#xA;                    sEndDate = props[&quot;endDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  string sStartDate = String.Empty;&#xA;                  if (props[&quot;startDate&quot;] != null) &#xA;                  { &#xA;                    sStartDate = props[&quot;startDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;&#xA;                  string sExpDate = String.Empty;&#xA;                  if (props[&quot;expirationDate&quot;] != null) &#xA;                  { &#xA;                    sExpDate = props[&quot;expirationDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;&#xA;                  string sScope = String.Empty;&#xA;                  if (props[&quot;scope&quot;] != null) &#xA;                  { &#xA;                    sScope = props[&quot;scope&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  subsDataToWrite.Add(&quot;name&quot;, sName);&#xA;                  subsDataToWrite.Add(&quot;state&quot;, sState);&#xA;                  String environment  = (string) context.Variables[&quot;environment&quot;]; &#xA;                  subsDataToWrite.Add(&quot;environment&quot;, environment);&#xA;                  subsDataToWrite.Add(&quot;createdDate&quot;, sCreatedOn);&#xA;                  subsDataToWrite.Add(&quot;id&quot;,sID.Substring(sID.LastIndexOf(&quot;/&quot;)+1));&#xA;                  subsDataToWrite.Add(&quot;startDate&quot;,sStartDate);&#xA;                  subsDataToWrite.Add(&quot;expirationDate&quot;,sExpDate);&#xA;                  subsDataToWrite.Add(&quot;apiName&quot;,sScope.Substring(sScope.LastIndexOf(&quot;/&quot;)+1));&#xA;  &#x9;              subsDataToReturn.Add(&quot;value&quot;,subsDataToWrite);&#xA;                 return subsDataToReturn.ToString();&#xA;        }" />
+		<set-variable name="subscriptionresponse" value="@{&#xA;                var subsDataToRead = ((IResponse)context.Variables[&quot;subsData&quot;]).Body.As&lt;JObject&gt;();&#xA;            &#x9;JArray subsArray = new JArray();&#xA;            &#x9;JObject subsDataToReturn = new JObject();&#xA;            &#x9;JObject o = (JObject)subsDataToRead;&#xA;&#xA;&#xA;              &#x9;  JObject subsDataToWrite = new JObject();&#xA;               &#x9;  string sID = o[&quot;id&quot;].ToString();&#xA;              &#x9;  string sName = o[&quot;name&quot;].ToString();&#xA;                  JObject props = (JObject)o[&quot;properties&quot;];  &#xA;               &#x9;  string sState = props[&quot;state&quot;].ToString();&#xA;                  string sCreatedOn = String.Empty;&#xA;                  if (props[&quot;createdDate&quot;] != null) &#xA;                  { &#xA;                    sCreatedOn = props[&quot;createdDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  string sEndDate = String.Empty;&#xA;                  if (props[&quot;endDate&quot;] != null) &#xA;                  { &#xA;                    sEndDate = props[&quot;endDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  string sStartDate = String.Empty;&#xA;                  if (props[&quot;startDate&quot;] != null) &#xA;                  { &#xA;                    sStartDate = props[&quot;startDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;&#xA;                  string sExpDate = String.Empty;&#xA;                  if (props[&quot;expirationDate&quot;] != null) &#xA;                  { &#xA;                    sExpDate = props[&quot;expirationDate&quot;].ToString();  &#xA;                  }&#xA;&#xA;&#xA;                  string sScope = String.Empty;&#xA;                  if (props[&quot;scope&quot;] != null) &#xA;                  { &#xA;                    sScope = props[&quot;scope&quot;].ToString();  &#xA;                  }&#xA;&#xA;                  subsDataToWrite.Add(&quot;name&quot;, sName);&#xA;                  subsDataToWrite.Add(&quot;state&quot;, sState);&#xA;                  String environment  = (string) context.Variables[&quot;environment&quot;]; &#xA;                  subsDataToWrite.Add(&quot;environment&quot;, environment);&#xA;                  subsDataToWrite.Add(&quot;createdDate&quot;, sCreatedOn);&#xA;                  subsDataToWrite.Add(&quot;id&quot;,sID.Substring(sID.LastIndexOf(&quot;/&quot;)+1));&#xA;                  subsDataToWrite.Add(&quot;startDate&quot;,sStartDate);&#xA;                  subsDataToWrite.Add(&quot;expirationDate&quot;,sExpDate);&#xA;                  subsDataToWrite.Add(&quot;apiName&quot;,sScope.Substring(sScope.LastIndexOf(&quot;/&quot;)+1));&#xA;  &#x9;              subsDataToReturn.Add(&quot;value&quot;,subsDataToWrite);&#xA;                 return subsDataToReturn;&#xA;        }" />
 		<send-request ignore-error="true" timeout="200" response-variable-name="logAppEmail">
 			<set-url>{{eapim-platform-api-create-subscription-logic-app-send-email}}</set-url>
 			<set-method>POST</set-method>
@@ -98,8 +98,10 @@
 				<value>application/json</value>
 			</set-header>
 			<set-body>@{
-                    String subscriptionresponse  = (string) context.Variables["subscriptionresponse"]; 
-                    return subscriptionresponse;
+                    JObject subscriptionresponse  = (JObject) context.Variables["subscriptionresponse"]; 
+                    subscriptionresponse.Add("ProductionURL","{{eapim-platform-api-production-baseurl}}");
+                    subscriptionresponse.Add("ProductionKey","{{eapim-platform-api-production-subscription-key}}");
+                    return subscriptionresponse.ToString();
                     }</set-body>
 		</send-request>
 		<return-response response-variable-name="subsData">
@@ -107,8 +109,8 @@
 				<value>application/json</value>
 			</set-header>
 			<set-body>@{
-                    String subscriptionresponse  = (string) context.Variables["subscriptionresponse"]; 
-                    return subscriptionresponse;
+                    JObject subscriptionresponse  = (JObject) context.Variables["subscriptionresponse"]; 
+                    return subscriptionresponse.ToString();
             }</set-body>
 		</return-response>
 	</inbound>
