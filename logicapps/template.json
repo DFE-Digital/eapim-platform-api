@@ -16,7 +16,14 @@
       },
       "logicapp_send_email_name": {
         "type": "String"
-      }      
+      },
+      "logicapp-create-subscription-event-handler": {
+        "type": "String"
+    },
+    "eapim-environment-name": {
+      "type": "String"
+  }            
+          
       },
     "variables": {},
     "resources": [
@@ -284,7 +291,1398 @@
           },
           "parameters": {}
         }
-      }      
+      },      
   
+      {
+        "type": "Microsoft.Logic/workflows",
+        "apiVersion": "2017-07-01",
+        "name": "[parameters('logicapp-create-subscription-event-handler')]",
+        "location": "westeurope",
+        "tags": {
+            "Environment": "test",
+            "Parent Business": "Shared IT core services",
+            "Portfolio": "",
+            "Product": "",
+            "Service": "",
+            "Service Line": "",
+            "Service Offering": "Enterprise API Management Service"
+        },
+        "properties": {
+            "state": "Enabled",
+            "definition": {
+                "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {},
+                "triggers": {
+                    "manual": {
+                        "type": "Request",
+                        "kind": "Http",
+                        "inputs": {
+                            "schema": {
+                                "properties": {
+                                    "value": {
+                                        "properties": {
+                                            "apiName": {
+                                                "type": "string"
+                                            },
+                                            "createdDate": {
+                                                "type": "string"
+                                            },
+                                            "environment": {
+                                                "type": "string"
+                                            },
+                                            "expirationDate": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "startDate": {
+                                                "type": "string"
+                                            },
+                                            "state": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "actions": {
+                    "Condition": {
+                        "actions": {
+                            "Condition_2": {
+                                "actions": {
+                                    "For_each": {
+                                        "foreach": "@body('Parse_JSON_2')?['value']",
+                                        "actions": {
+                                            "Condition_3": {
+                                                "actions": {
+                                                    "For_each_2": {
+                                                        "foreach": "@body('Parse_JSON_3')?['value']",
+                                                        "actions": {
+                                                            "HTTP_5": {
+                                                                "runAfter": {},
+                                                                "type": "Http",
+                                                                "inputs": {
+                                                                    "body": {
+                                                                        "content-type": "text/html",
+                                                                        "email-content": "EAPIM Environment: OAT<br>API Owner Name:@{variables('APIOWNER')}<br>API Owner Email:@{variables('APIOWNER-EMAIL')}<br>API Approver Name:@{variables('APIAPPROVER')}<br>API Approver Email:@{variables('APIAPPROVER-EMAIL')}<br>Subscription Name: @{items('For_each_2')?['id']}<br>Application Name: @{variables('APPNAME')}<br>Application Description: @{items('For_each')?['description']}<br>User Name: @{items('For_each_2')?['displayName']}<br>API Name: @{body('Parse_JSON_5')?['value']?['apiName']}<br>Requester Email: @{items('For_each_2')?['identities'][0].issuerAssignedId}<br>Account Type: @{items('For_each_2')?['creationType']}",
+                                                                        "email-from": "subscriptions@dfedeveloperhub.com",
+                                                                        "email-to": "eapim.support@education.gov.uk",
+                                                                        "subject": "DFE Developer Hub -Subscription Request [OAT]"
+                                                                    },
+                                                                    "headers": {
+                                                                        "Content-Type": "application/json",
+                                                                        "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                                                                    },
+                                                                    "method": "POST",
+                                                                    "uri": "@{variables('PRODUCTION-URL')}/Email"
+                                                                }
+                                                            }
+                                                        },
+                                                        "runAfter": {
+                                                            "Parse_JSON_3": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "Foreach"
+                                                    },
+                                                    "Parse_JSON_3": {
+                                                        "runAfter": {},
+                                                        "type": "ParseJson",
+                                                        "inputs": {
+                                                            "content": "@body('HTTP_3')",
+                                                            "schema": {
+                                                                "properties": {
+                                                                    "@@odata.context": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "value": {
+                                                                        "items": {
+                                                                            "properties": {
+                                                                                "accountEnabled": {
+                                                                                    "type": "boolean"
+                                                                                },
+                                                                                "ageGroup": {},
+                                                                                "assignedLicenses": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "assignedPlans": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "businessPhones": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "city": {},
+                                                                                "companyName": {},
+                                                                                "consentProvidedForMinor": {},
+                                                                                "country": {},
+                                                                                "createdDateTime": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "creationType": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "deletedDateTime": {},
+                                                                                "department": {},
+                                                                                "deviceKeys": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "displayName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "employeeHireDate": {},
+                                                                                "employeeId": {},
+                                                                                "employeeOrgData": {},
+                                                                                "employeeType": {},
+                                                                                "externalUserState": {},
+                                                                                "externalUserStateChangeDateTime": {},
+                                                                                "faxNumber": {},
+                                                                                "givenName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "id": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "identities": {
+                                                                                    "items": {
+                                                                                        "properties": {
+                                                                                            "issuer": {
+                                                                                                "type": "string"
+                                                                                            },
+                                                                                            "issuerAssignedId": {
+                                                                                                "type": "string"
+                                                                                            },
+                                                                                            "signInType": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "signInType",
+                                                                                            "issuer",
+                                                                                            "issuerAssignedId"
+                                                                                        ],
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "imAddresses": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "infoCatalogs": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "isResourceAccount": {},
+                                                                                "jobTitle": {},
+                                                                                "legalAgeGroupClassification": {},
+                                                                                "mail": {},
+                                                                                "mailNickname": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "mobilePhone": {},
+                                                                                "officeLocation": {},
+                                                                                "onPremisesDistinguishedName": {},
+                                                                                "onPremisesDomainName": {},
+                                                                                "onPremisesExtensionAttributes": {
+                                                                                    "properties": {
+                                                                                        "extensionAttribute1": {},
+                                                                                        "extensionAttribute10": {},
+                                                                                        "extensionAttribute11": {},
+                                                                                        "extensionAttribute12": {},
+                                                                                        "extensionAttribute13": {},
+                                                                                        "extensionAttribute14": {},
+                                                                                        "extensionAttribute15": {},
+                                                                                        "extensionAttribute2": {},
+                                                                                        "extensionAttribute3": {},
+                                                                                        "extensionAttribute4": {},
+                                                                                        "extensionAttribute5": {},
+                                                                                        "extensionAttribute6": {},
+                                                                                        "extensionAttribute7": {},
+                                                                                        "extensionAttribute8": {},
+                                                                                        "extensionAttribute9": {}
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "onPremisesImmutableId": {},
+                                                                                "onPremisesLastSyncDateTime": {},
+                                                                                "onPremisesProvisioningErrors": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "onPremisesSamAccountName": {},
+                                                                                "onPremisesSecurityIdentifier": {},
+                                                                                "onPremisesSyncEnabled": {},
+                                                                                "onPremisesUserPrincipalName": {},
+                                                                                "otherMails": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "passwordPolicies": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "passwordProfile": {},
+                                                                                "postalCode": {},
+                                                                                "preferredDataLocation": {},
+                                                                                "preferredLanguage": {},
+                                                                                "provisionedPlans": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "proxyAddresses": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "refreshTokensValidFromDateTime": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "showInAddressList": {},
+                                                                                "signInSessionsValidFromDateTime": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "state": {},
+                                                                                "streetAddress": {},
+                                                                                "surname": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "usageLocation": {},
+                                                                                "userPrincipalName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "userType": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "id",
+                                                                                "deletedDateTime",
+                                                                                "accountEnabled",
+                                                                                "ageGroup",
+                                                                                "businessPhones",
+                                                                                "city",
+                                                                                "createdDateTime",
+                                                                                "creationType",
+                                                                                "companyName",
+                                                                                "consentProvidedForMinor",
+                                                                                "country",
+                                                                                "department",
+                                                                                "displayName",
+                                                                                "employeeId",
+                                                                                "employeeHireDate",
+                                                                                "employeeOrgData",
+                                                                                "employeeType",
+                                                                                "faxNumber",
+                                                                                "givenName",
+                                                                                "imAddresses",
+                                                                                "infoCatalogs",
+                                                                                "isResourceAccount",
+                                                                                "jobTitle",
+                                                                                "legalAgeGroupClassification",
+                                                                                "mail",
+                                                                                "mailNickname",
+                                                                                "mobilePhone",
+                                                                                "onPremisesDistinguishedName",
+                                                                                "officeLocation",
+                                                                                "onPremisesDomainName",
+                                                                                "onPremisesImmutableId",
+                                                                                "onPremisesLastSyncDateTime",
+                                                                                "onPremisesSecurityIdentifier",
+                                                                                "onPremisesSamAccountName",
+                                                                                "onPremisesSyncEnabled",
+                                                                                "onPremisesUserPrincipalName",
+                                                                                "otherMails",
+                                                                                "passwordPolicies",
+                                                                                "passwordProfile",
+                                                                                "postalCode",
+                                                                                "preferredDataLocation",
+                                                                                "preferredLanguage",
+                                                                                "proxyAddresses",
+                                                                                "refreshTokensValidFromDateTime",
+                                                                                "showInAddressList",
+                                                                                "signInSessionsValidFromDateTime",
+                                                                                "state",
+                                                                                "streetAddress",
+                                                                                "surname",
+                                                                                "usageLocation",
+                                                                                "userPrincipalName",
+                                                                                "externalUserState",
+                                                                                "externalUserStateChangeDateTime",
+                                                                                "userType",
+                                                                                "assignedLicenses",
+                                                                                "assignedPlans",
+                                                                                "deviceKeys",
+                                                                                "identities",
+                                                                                "onPremisesExtensionAttributes",
+                                                                                "onPremisesProvisioningErrors",
+                                                                                "provisionedPlans"
+                                                                            ],
+                                                                            "type": "object"
+                                                                        },
+                                                                        "type": "array"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "runAfter": {
+                                                    "HTTP_3": [
+                                                        "Succeeded",
+                                                        "Failed",
+                                                        "TimedOut"
+                                                    ]
+                                                },
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@outputs('HTTP_3')['statusCode']",
+                                                                200
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "type": "If"
+                                            },
+                                            "HTTP_3": {
+                                                "runAfter": {
+                                                    "Set_variable_3": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "headers": {
+                                                        "Content-Type": "application/json",
+                                                        "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
+                                                    },
+                                                    "method": "GET",
+                                                    "uri": "@{variables('EAPIM-BASE')}/UserByObjectID?objectId=@{variables('USERID')}"
+                                                }
+                                            },
+                                            "Set_variable_2": {
+                                                "runAfter": {},
+                                                "type": "SetVariable",
+                                                "inputs": {
+                                                    "name": "USERID",
+                                                    "value": "@substring(items('For_each')?['displayName'],16,36)"
+                                                }
+                                            },
+                                            "Set_variable_3": {
+                                                "runAfter": {
+                                                    "Set_variable_2": [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type": "SetVariable",
+                                                "inputs": {
+                                                    "name": "APPNAME",
+                                                    "value": "@items('For_each')?['displayName']"
+                                                }
+                                            }
+                                        },
+                                        "runAfter": {
+                                            "Parse_JSON_2": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Foreach"
+                                    },
+                                    "Parse_JSON_2": {
+                                        "runAfter": {},
+                                        "type": "ParseJson",
+                                        "inputs": {
+                                            "content": "@body('HTTP_2')",
+                                            "schema": {
+                                                "properties": {
+                                                    "@@odata.context": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "items": {
+                                                            "properties": {
+                                                                "addIns": {
+                                                                    "type": "array"
+                                                                },
+                                                                "api": {
+                                                                    "properties": {
+                                                                        "acceptMappedClaims": {},
+                                                                        "knownClientApplications": {
+                                                                            "type": "array"
+                                                                        },
+                                                                        "oauth2PermissionScopes": {
+                                                                            "type": "array"
+                                                                        },
+                                                                        "preAuthorizedApplications": {
+                                                                            "type": "array"
+                                                                        },
+                                                                        "requestedAccessTokenVersion": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "resourceSpecificApplicationPermissions": {
+                                                                            "type": "array"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "appId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "appRoles": {
+                                                                    "type": "array"
+                                                                },
+                                                                "applicationTemplateId": {},
+                                                                "createdDateTime": {
+                                                                    "type": "string"
+                                                                },
+                                                                "defaultRedirectUri": {},
+                                                                "deletedDateTime": {},
+                                                                "description": {
+                                                                    "type": "string"
+                                                                },
+                                                                "displayName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "groupMembershipClaims": {},
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "identifierUris": {
+                                                                    "type": "array"
+                                                                },
+                                                                "info": {
+                                                                    "properties": {
+                                                                        "logoUrl": {},
+                                                                        "marketingUrl": {},
+                                                                        "privacyStatementUrl": {},
+                                                                        "supportUrl": {},
+                                                                        "termsOfServiceUrl": {}
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "isAuthorizationServiceEnabled": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "isDeviceOnlyAuthSupported": {},
+                                                                "isFallbackPublicClient": {},
+                                                                "keyCredentials": {
+                                                                    "type": "array"
+                                                                },
+                                                                "notes": {},
+                                                                "oauth2RequirePostResponse": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "optionalClaims": {},
+                                                                "orgRestrictions": {
+                                                                    "type": "array"
+                                                                },
+                                                                "parentalControlSettings": {
+                                                                    "properties": {
+                                                                        "countriesBlockedForMinors": {
+                                                                            "type": "array"
+                                                                        },
+                                                                        "legalAgeGroupRule": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "passwordCredentials": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "customKeyIdentifier": {},
+                                                                            "displayName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "endDateTime": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "hint": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "keyId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "secretText": {},
+                                                                            "startDateTime": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "customKeyIdentifier",
+                                                                            "endDateTime",
+                                                                            "keyId",
+                                                                            "startDateTime",
+                                                                            "secretText",
+                                                                            "hint",
+                                                                            "displayName"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "publicClient": {
+                                                                    "properties": {
+                                                                        "redirectUris": {
+                                                                            "type": "array"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "publisherDomain": {
+                                                                    "type": "string"
+                                                                },
+                                                                "requiredResourceAccess": {
+                                                                    "type": "array"
+                                                                },
+                                                                "signInAudience": {
+                                                                    "type": "string"
+                                                                },
+                                                                "spa": {
+                                                                    "properties": {
+                                                                        "redirectUris": {
+                                                                            "type": "array"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "tags": {
+                                                                    "type": "array"
+                                                                },
+                                                                "tokenEncryptionKeyId": {},
+                                                                "uniqueName": {},
+                                                                "verifiedPublisher": {
+                                                                    "properties": {
+                                                                        "addedDateTime": {},
+                                                                        "displayName": {},
+                                                                        "verifiedPublisherId": {}
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "web": {
+                                                                    "properties": {
+                                                                        "homePageUrl": {},
+                                                                        "implicitGrantSettings": {
+                                                                            "properties": {
+                                                                                "enableAccessTokenIssuance": {
+                                                                                    "type": "boolean"
+                                                                                },
+                                                                                "enableIdTokenIssuance": {
+                                                                                    "type": "boolean"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "logoutUrl": {},
+                                                                        "redirectUris": {
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "type": "array"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "id",
+                                                                "deletedDateTime",
+                                                                "addIns",
+                                                                "appId",
+                                                                "applicationTemplateId",
+                                                                "identifierUris",
+                                                                "createdDateTime",
+                                                                "description",
+                                                                "displayName",
+                                                                "isAuthorizationServiceEnabled",
+                                                                "isDeviceOnlyAuthSupported",
+                                                                "isFallbackPublicClient",
+                                                                "groupMembershipClaims",
+                                                                "notes",
+                                                                "oauth2RequirePostResponse",
+                                                                "optionalClaims",
+                                                                "orgRestrictions",
+                                                                "publisherDomain",
+                                                                "signInAudience",
+                                                                "tags",
+                                                                "tokenEncryptionKeyId",
+                                                                "uniqueName",
+                                                                "verifiedPublisher",
+                                                                "defaultRedirectUri",
+                                                                "api",
+                                                                "appRoles",
+                                                                "publicClient",
+                                                                "info",
+                                                                "keyCredentials",
+                                                                "parentalControlSettings",
+                                                                "passwordCredentials",
+                                                                "requiredResourceAccess",
+                                                                "web",
+                                                                "spa"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    }
+                                },
+                                "runAfter": {
+                                    "HTTP_2": [
+                                        "Succeeded",
+                                        "Failed",
+                                        "TimedOut"
+                                    ]
+                                },
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "equals": [
+                                                "@outputs('HTTP_2')['statusCode']",
+                                                200
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            },
+                            "HTTP_2": {
+                                "runAfter": {
+                                    "Set_variable": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Http",
+                                "inputs": {
+                                    "headers": {
+                                        "Content-Type": "application/json",
+                                        "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
+                                    },
+                                    "method": "GET",
+                                    "uri": "@{variables('EAPIM-BASE')}/ApplicationByObjectID?objectId=@{variables('APPID')}"
+                                }
+                            },
+                            "Set_variable": {
+                                "runAfter": {},
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "APPID",
+                                    "value": "@substring(body('Parse_JSON')?['properties']?['displayName'],6,36)"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "For_each_6": [
+                                "Succeeded"
+                            ]
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "contains": [
+                                        "@body('Parse_JSON')?['properties']?['displayName']",
+                                        "ddhub-"
+                                    ]
+                                }
+                            ]
+                        },
+                        "type": "If"
+                    },
+                    "Condition_8": {
+                        "actions": {
+                            "HTTP": {
+                                "runAfter": {},
+                                "type": "Http",
+                                "inputs": {
+                                    "body": {
+                                        "Id": "@body('Parse_JSON_5')?['value']?['id']",
+                                        "environment": "production"
+                                    },
+                                    "headers": {
+                                        "Content-Type": "application/json",
+                                        "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                                    },
+                                    "method": "POST",
+                                    "uri": "@{variables('PRODUCTION-URL')}/subscriptionbyId"
+                                }
+                            },
+                            "Set_variable_10": {
+                                "runAfter": {
+                                    "HTTP": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "EAPIM-BASE",
+                                    "value": "https:@{split(body('Parse_JSON_5')?['value']?['environment'],':')[1]}"
+                                }
+                            },
+                            "Set_variable_11": {
+                                "runAfter": {
+                                    "Set_variable_10": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "EAPIM-SUBSCRIPTION-KEY",
+                                    "value": "@{split(body('Parse_JSON_5')?['value']?['environment'],':')[2]}"
+                                }
+                            },
+                            "Set_variable_14": {
+                                "runAfter": {},
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "DELAGATED",
+                                    "value": "@true"
+                                }
+                            },
+                            "Set_variable_8": {
+                                "runAfter": {
+                                    "Set_variable_11": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "SUBSCRIPTION-DATA",
+                                    "value": "@{body('HTTP')}"
+                                }
+                            }
+                        },
+                        "runAfter": {
+                            "Initialize_variable_14": [
+                                "Succeeded"
+                            ]
+                        },
+                        "else": {
+                            "actions": {
+                                "HTTP_6": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "body": {
+                                            "Id": "@body('Parse_JSON_5')?['value']?['id']",
+                                            "environment": "production"
+                                        },
+                                        "headers": {
+                                            "Content-Type": "application/json",
+                                            "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                                        },
+                                        "method": "POST",
+                                        "uri": "@{variables('PRODUCTION-URL')}/subscriptionbyId"
+                                    }
+                                },
+                                "Set_variable_12": {
+                                    "runAfter": {
+                                        "Set_variable_9": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EAPIM-BASE",
+                                        "value": "@variables('PRODUCTION-URL')"
+                                    }
+                                },
+                                "Set_variable_13": {
+                                    "runAfter": {
+                                        "Set_variable_12": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EAPIM-SUBSCRIPTION-KEY",
+                                        "value": "@variables('PRODUCTION-KEY')"
+                                    }
+                                },
+                                "Set_variable_9": {
+                                    "runAfter": {
+                                        "HTTP_6": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "SUBSCRIPTION-DATA",
+                                        "value": "@{body('HTTP_6')}"
+                                    }
+                                }
+                            }
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "contains": [
+                                        "@body('Parse_JSON_5')?['value']?['environment']",
+                                        "delegated-"
+                                    ]
+                                }
+                            ]
+                        },
+                        "type": "If"
+                    },
+                    "For_each_3": {
+                        "foreach": "@body('Parse_JSON_4')?['value']",
+                        "actions": {
+                            "Condition_4": {
+                                "actions": {
+                                    "Set_variable_4": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "APIOWNER-EMAIL",
+                                            "value": "@{items('For_each_3')['properties']['value']}"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@items('For_each_3')?['name']",
+                                                "OwnerEmail"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "Parse_JSON_4": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "For_each_4": {
+                        "foreach": "@body('Parse_JSON_4')?['value']",
+                        "actions": {
+                            "Condition_5": {
+                                "actions": {
+                                    "Set_variable_5": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "APIOWNER",
+                                            "value": "@{items('For_each_4')['properties']['value']}"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@items('For_each_4')?['name']",
+                                                "OwnerName"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "For_each_3": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "For_each_5": {
+                        "foreach": "@body('Parse_JSON_4')?['value']",
+                        "actions": {
+                            "Condition_6": {
+                                "actions": {
+                                    "Set_variable_6": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "APIAPPROVER",
+                                            "value": "@{items('For_each_5')['properties']['value']}"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@items('For_each_5')?['name']",
+                                                "-ApproverName"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "For_each_4": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "For_each_6": {
+                        "foreach": "@body('Parse_JSON_4')?['value']",
+                        "actions": {
+                            "Condition_7": {
+                                "actions": {
+                                    "Set_variable_7": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "APIAPPROVER-EMAIL",
+                                            "value": "@{items('For_each_6')['properties']['value']}"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@items('For_each_6')?['name']",
+                                                "-ApproverEmail"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "For_each_5": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "HTTP_4": {
+                        "runAfter": {
+                            "Initialize_variable_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Http",
+                        "inputs": {
+                            "body": {
+                                "apiName": "@body('Parse_JSON_5')?['value']?['apiName']",
+                                "environment": "production"
+                            },
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                            },
+                            "method": "POST",
+                            "uri": "@{variables('PRODUCTION-URL')}/GetApiTags"
+                        }
+                    },
+                    "Initialize_variable": {
+                        "runAfter": {
+                            "Initialize_variable_6": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APPID",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_10": {
+                        "runAfter": {
+                            "Initialize_variable_9": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "EAPIM-BASE",
+                                    "type": "string",
+                                    "value": "dev-api"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_11": {
+                        "runAfter": {
+                            "Initialize_variable_10": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "EAPIM-SUBSCRIPTION-KEY",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_12": {
+                        "runAfter": {
+                            "Initialize_variable_11": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "DELAGATED",
+                                    "type": "boolean",
+                                    "value": "@false"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_13": {
+                        "runAfter": {
+                            "Initialize_variable_12": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "PRODUCTION-URL",
+                                    "type": "string",
+                                    "value": "@body('Parse_JSON_5')?['ProductionURL']"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_14": {
+                        "runAfter": {
+                            "Initialize_variable_13": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "PRODUCTION-KEY",
+                                    "type": "string",
+                                    "value": "@body('Parse_JSON_5')?['ProductionKey']"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_2": {
+                        "runAfter": {
+                            "Initialize_variable": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "USERID",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_3": {
+                        "runAfter": {
+                            "Initialize_variable_5": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APIOWNER",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_4": {
+                        "runAfter": {
+                            "Initialize_variable_3": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APIOWNER-EMAIL",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_5": {
+                        "runAfter": {
+                            "Parse_JSON": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APPNAME",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_6": {
+                        "runAfter": {
+                            "Initialize_variable_8": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APINAME",
+                                    "type": "string",
+                                    "value": "@body('Parse_JSON_5')?['value']?['name']"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_7": {
+                        "runAfter": {
+                            "Initialize_variable_4": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APIAPPROVER",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_8": {
+                        "runAfter": {
+                            "Initialize_variable_7": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APIAPPROVER-EMAIL",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_9": {
+                        "runAfter": {
+                            "Parse_JSON_5": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "SUBSCRIPTION-DATA",
+                                    "type": "string",
+                                    "value": "\"\""
+                                }
+                            ]
+                        }
+                    },
+                    "Parse_JSON": {
+                        "runAfter": {
+                            "Condition_8": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@variables('SUBSCRIPTION-DATA')",
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "properties": {
+                                        "properties": {
+                                            "createdDate": {
+                                                "type": "string"
+                                            },
+                                            "displayName": {
+                                                "type": "string"
+                                            },
+                                            "endDate": {},
+                                            "expirationDate": {},
+                                            "notificationDate": {},
+                                            "ownerId": {
+                                                "type": "string"
+                                            },
+                                            "scope": {
+                                                "type": "string"
+                                            },
+                                            "startDate": {},
+                                            "state": {
+                                                "type": "string"
+                                            },
+                                            "stateComment": {}
+                                        },
+                                        "type": "object"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "Parse_JSON_4": {
+                        "runAfter": {
+                            "HTTP_4": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@body('HTTP_4')",
+                            "schema": {
+                                "properties": {
+                                    "count": {
+                                        "type": "integer"
+                                    },
+                                    "value": {
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "properties": {
+                                                    "properties": {
+                                                        "displayName": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "type",
+                                                "name",
+                                                "properties"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "type": "array"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "Parse_JSON_5": {
+                        "runAfter": {},
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@triggerBody()",
+                            "schema": {
+                                "properties": {
+                                    "ProductionKey": {
+                                        "type": "string"
+                                    },
+                                    "ProductionURL": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "properties": {
+                                            "apiName": {
+                                                "type": "string"
+                                            },
+                                            "createdDate": {
+                                                "type": "string"
+                                            },
+                                            "environment": {
+                                                "type": "string"
+                                            },
+                                            "expirationDate": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "startDate": {
+                                                "type": "string"
+                                            },
+                                            "state": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "outputs": {}
+            },
+            "parameters": {}
+        }
+    }
+
+
     ]
   }
