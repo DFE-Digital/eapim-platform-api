@@ -456,7 +456,7 @@
                                                                             " api-owner-email": "@{variables('APIOWNER-EMAIL')}",
                                                                             "api-approver-email": "@{variables('APIAPPROVER-EMAIL')}",
                                                                             "api-approver-name": "@{variables('APIAPPROVER')}",
-                                                                            "api-environment": "DEVELOPMENT",
+                                                                            "api-environment": "[parameters('eapim-environment-name')]",
                                                                             "api-owner-name": "@{variables('APIOWNER')}",
                                                                             "eapim-api-name": "@{variables('APINAME')}",
                                                                             "eapim-ddhub-account-type": "@{items('For_each_2')?['creationType']}",
@@ -464,7 +464,7 @@
                                                                             "eapim-ddhub-application-name": "@{variables('APPNAME')}",
                                                                             "eapim-ddhub-requester-email": "@{items('For_each_2')?['identities'][0].issuerAssignedId}",
                                                                             "eapim-ddhub-user-name": "@{items('For_each_2')?['displayName']}",
-                                                                            "eapim-environment": "DEVELOPMENT",
+                                                                            "eapim-environment": "[parameters('eapim-environment-name')]",
                                                                             "eapim-subscription-name": "@{body('Parse_JSON_5')?['value']?['name']}"
                                                                         },
                                                                         "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-support')]"
