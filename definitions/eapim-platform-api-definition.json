@@ -215,7 +215,30 @@
           "summary": "DDHubInvitationEmail",
           "responses": {
             "200": {
-              "description": "Developer Hub Invitation Email"
+                        "description": "Developer Hub Invitation Email"
+                    }
+                }
+            }
+        },
+        "/ddhubinvitationlink": {
+            "post": {
+                "operationId": "ddhubinvitationlink",
+                "summary": "DDHubInvitationLink",
+                "responses": {
+                    "200": {
+                        "description": "Developer Hub Invitation Link"
+                    }
+                }
+            }
+        },
+        "/GetPendingSubscriptions": {
+            "post": {
+                "description": "Returns the list of pending subscriptions",
+                "operationId": "pendingsubscriptions",
+                "summary": "GetPendingSubscriptions",
+                "responses": {
+                    "200": {
+                        "description": "EAPIM Pending Subscriptions"
             }
           }
         }
@@ -248,11 +271,33 @@
           "summary": "GetSubscriptionByID",
           "responses": {
             "200": {
-              "description": "subscriptionbyId"
+                        "description": "subscriptionbyId"
+                    }
+                }
             }
-          }
+        },
+        "/gdsnotifyauthorizetoken": {
+            "get": {
+                "operationId": "gdsnotifyauthorizetoken",
+                "summary": "GDSNotifyAuthorizeToken",
+                "responses": {
+                    "200": {
+                        "description": "gdsnotifyauthorizetoken"
+                    }
+                }
+            }
+        },
+        "/ddhubinvitationsigninerror": {
+            "post": {
+                "operationId": "ddhubinvitationsigninerror",
+                "summary": " DDHubInvitationSigninError",
+                "responses": {
+                    "200": {
+                        "description": "ddhubinvitationsigninerror"
+                    }
+                }
+            }
         }
-      }
     },
     "tags": []
   }

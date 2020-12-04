@@ -78,7 +78,8 @@
                  data.Add("content-type","text/html");
                 // data.Add("email-content",emaildata);
                  
-                 data.Add("email-content","&lt;p&gt;Welcome "+ name + ", " + emailContentBase + "&lt;/p&gt;: "+ verifyUrl);
+                 //data.Add("email-content","&lt;p&gt;Welcome "+ name + ", " + emailContentBase + "&lt;/p&gt;: "+ verifyUrl);
+                 data.Add("email-content", verifyUrl);
                 return data.ToString();
         }</set-body>
 		</send-request>
