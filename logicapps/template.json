@@ -19,12 +19,34 @@
       },
       "logicapp-create-subscription-event-handler": {
         "type": "String"
-    },
-    "eapim-environment-name": {
-      "type": "String"
-  }            
-          
       },
+      "eapim-environment-name": {
+      "type": "String"
+      }            
+      ,
+      "gds-notify-api-service-url": {
+        "type": "String"
+      }  
+      ,
+      "gds-notify-api-service-template-id-ddhub-invitation": {
+       "type": "String"
+      }  
+
+      ,
+      "gds-notify-api-service-template-id-ddhub-subscription-received-user": {
+       "type": "String"
+      },
+      "gds-notify-api-service-template-id-ddhub-subscription-received-support": {
+        "type": "String"
+       }        
+      ,
+      "eapim-api-get-gds-notication-token-url": {
+         "type": "String"
+      },  
+      "eapim-api-subscription-key": {
+        "type": "String"
+       }  
+    },
     "variables": {},
     "resources": [
       {
@@ -200,98 +222,114 @@
           "parameters": {}
         }
       },
+      
       {
         "type": "Microsoft.Logic/workflows",
         "apiVersion": "2017-07-01",
         "name": "[parameters('logicapp_send_email_name')]",
         "location": "westeurope",
         "tags": {
-          "Portfolio": "Operations Group",
-          "Product": "Enterprise API Management Service",
-          "Service": "CIPS",
-          "Environment": "development",
-          "Service Line": "Chief Technology Officer and Chief Architect",
-          "Service Offering": "CIP - API Management Service",
-          "Parent Business": "Shared IT core services"
+            "BU": "ESFA",
+            "CC": "DataCollections",
+            "Environment": "development",
+            "Environment  ": "Development",
+            "Parent Business": "Shared IT core services",
+            "Parent Business Unit": "Shared IT Core Services",
+            "Portfolio": "Digital and Technology",
+            "Product": "Enterprise API Management Service",
+            "SA": "BudgetForecastReturn3year",
+            "SL": "10420634",
+            "Service": "Enterprise API Management Service",
+            "Service Line": "CIPS",
+            "Service Offering": "Enterprise API Management Service",
+            "hidden-link:/subscriptions/28065042-d33b-475c-a9fa-9b26795dafc6/resourceGroups/c111d01-logs/providers/Microsoft.OperationalInsights/workspaces/c111d01-logs-law-02": "Resource",
+            "hidden-link:/subscriptions/6baf9b49-a057-499a-bbe1-933ed45d37c5/resourceGroups/c106d01-eapim-custeng/providers/Microsoft.Insights/components/c106d01-eapim-ai-custeng": "Resource",
+            "hidden-link:/subscriptions/6baf9b49-a057-499a-bbe1-933ed45d37c5/resourceGroups/c106d01-eapim-custeng/providers/Microsoft.Insights/webtests/c106d01-eapimtask-webtest-dfeschoolssurveyserviceapi_v1": "Resource",
+            "hidden-link:/subscriptions/6baf9b49-a057-499a-bbe1-933ed45d37c5/resourceGroups/c106d01-eapim-custeng/providers/Microsoft.Insights/webtests/c106d01-eapimtask-webtest-financeapi_v1": "Resource",
+            "hidden-link:/subscriptions/6baf9b49-a057-499a-bbe1-933ed45d37c5/resourcegroups/c106d01-eapim-shd/providers/Microsoft.Web/sites/c106d01-eapim-funcapp-create-verification-url": "Resource",
+            "hidden-title": "APIM Dev Test Dashboard"
         },
         "properties": {
-          "state": "Enabled",
-          "definition": {
-            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-            "contentVersion": "1.0.0.0",
-            "parameters": {},
-            "triggers": {
-              "manual": {
-                "type": "Request",
-                "kind": "Http",
-                "inputs": {
-                  "schema": {
-                    "properties": {
-                      "authorizationkey": {
-                        "type": "string"
-                      },
-                      "content-type": {
-                        "type": "string"
-                      },
-                      "email-content": {
-                        "type": "string"
-                      },
-                      "email-from": {
-                        "type": "string"
-                      },
-                      "email-to": {
-                        "type": "string"
-                      },
-                      "subject": {
-                        "type": "string"
-                      }
+            "state": "Enabled",
+            "definition": {
+                "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {},
+                "triggers": {
+                    "manual": {
+                        "type": "Request",
+                        "kind": "Http",
+                        "inputs": {
+                            "schema": {
+                                "properties": {
+                                    "authorizationkey": {
+                                        "type": "string"
+                                    },
+                                    "content-type": {
+                                        "type": "string"
+                                    },
+                                    "email-content": {
+                                        "type": "string"
+                                    },
+                                    "email-from": {
+                                        "type": "string"
+                                    },
+                                    "email-to": {
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "actions": {
+                    "HTTP": {
+                        "runAfter": {
+                            "HTTP_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Http",
+                        "inputs": {
+                            "body": {
+                                "email_address": "@{triggerBody()?['email-to']}",
+                                "personalisation": {
+                                    "URL": "@{triggerBody()?['email-content']}",
+                                    "UserName": "@{triggerBody()?['email-to']}"
+                                },
+                                "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-invitation')]"
+                            },
+                            "headers": {
+                                "Authorization": "Bearer  @{body('HTTP_2')}",
+                                "content-type": "application/json"
+                            },
+                            "method": "POST",
+                            "uri": "[parameters('gds-notify-api-service-url')]"
+                        }
                     },
-                    "type": "object"
-                  }
-                }
-              }
+                    "HTTP_2": {
+                        "runAfter": {},
+                        "type": "Http",
+                        "inputs": {
+                            "headers": {
+                                "Content-type": "application/json",
+                                "Ocp-Apim-Subscription-Key": "[parameters('eapim-api-subscription-key')]"
+                            },
+                            "method": "GET",
+                            "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                        }
+                    }
+                },
+                "outputs": {}
             },
-            "actions": {
-              "HTTP": {
-                "runAfter": {},
-                "type": "Http",
-                "inputs": {
-                  "body": {
-                    "content": [
-                      {
-                        "type": "@{triggerBody()?['content-type']}",
-                        "value": "@{triggerBody()?['email-content']}"
-                      }
-                    ],
-                    "from": {
-                      "email": "@{triggerBody()?['email-from']}"
-                    },
-                    "personalizations": [
-                      {
-                        "to": [
-                          {
-                            "email": "@{triggerBody()?['email-to']}"
-                          }
-                        ]
-                      }
-                    ],
-                    "subject": "@{triggerBody()?['subject']}"
-                  },
-                  "headers": {
-                    "Authorization": "Bearer @{triggerBody()?['authorizationkey']}",
-                    "Host": "api.sendgrid.com",
-                    "content-type": "application/json"
-                  },
-                  "method": "POST",
-                  "uri": "https://api.sendgrid.com/v3/mail/send"
-                }
-              }
-            },
-            "outputs": {}
-          },
-          "parameters": {}
+            "parameters": {}
         }
-      },      
+      }      
+      ,      
   
       {
         "type": "Microsoft.Logic/workflows",
@@ -299,12 +337,12 @@
         "name": "[parameters('logicapp-create-subscription-event-handler')]",
         "location": "westeurope",
         "tags": {
-            "Environment": "test",
+            "Environment": "development",
             "Parent Business": "Shared IT core services",
-            "Portfolio": "",
-            "Product": "",
-            "Service": "",
-            "Service Line": "",
+            "Portfolio": "Digital and Technology",
+            "Product": "Enterprise API Management Service",
+            "Service": "Enterprise API Management Service",
+            "Service Line": "CIPS",
             "Service Offering": "Enterprise API Management Service"
         },
         "properties": {
@@ -369,22 +407,74 @@
                                                         "foreach": "@body('Parse_JSON_3')?['value']",
                                                         "actions": {
                                                             "HTTP_5": {
-                                                                "runAfter": {},
+                                                                "runAfter": {
+                                                                    "HTTP_8": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
                                                                 "type": "Http",
                                                                 "inputs": {
                                                                     "body": {
-                                                                        "content-type": "text/html",
-                                                                        "email-content": "EAPIM Environment: OAT<br>API Owner Name:@{variables('APIOWNER')}<br>API Owner Email:@{variables('APIOWNER-EMAIL')}<br>API Approver Name:@{variables('APIAPPROVER')}<br>API Approver Email:@{variables('APIAPPROVER-EMAIL')}<br>Subscription Name: @{items('For_each_2')?['id']}<br>Application Name: @{variables('APPNAME')}<br>Application Description: @{items('For_each')?['description']}<br>User Name: @{items('For_each_2')?['displayName']}<br>API Name: @{body('Parse_JSON_5')?['value']?['apiName']}<br>Requester Email: @{items('For_each_2')?['identities'][0].issuerAssignedId}<br>Account Type: @{items('For_each_2')?['creationType']}",
-                                                                        "email-from": "subscriptions@dfedeveloperhub.com",
-                                                                        "email-to": "eapim.support@education.gov.uk",
-                                                                        "subject": "DFE Developer Hub -Subscription Request [OAT]"
+                                                                        "email_address": "@{items('For_each_2')?['identities'][0].issuerAssignedId}",
+                                                                        "personalisation": {
+                                                                            "APIName": "@{variables('APINAME')}",
+                                                                            "UserName": "@{items('For_each_2')?['displayName']}"
+                                                                        },
+                                                                        "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-user')]"
                                                                     },
                                                                     "headers": {
-                                                                        "Content-Type": "application/json",
-                                                                        "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                                                                        "Authorization": "Bearer  @{body('HTTP_7')}",
+                                                                        "content-type": "application/json"
                                                                     },
                                                                     "method": "POST",
-                                                                    "uri": "@{variables('PRODUCTION-URL')}/Email"
+                                                                    "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                                                                }
+                                                            },
+                                                            "HTTP_7": {
+                                                                "runAfter": {},
+                                                                "type": "Http",
+                                                                "inputs": {
+                                                                    "headers": {
+                                                                        "Content-type": "application/json",
+                                                                        "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
+                                                                    },
+                                                                    "method": "GET",
+                                                                    "uri": "@{variables('PRODUCTION-URL')}/gdsnotifyauthorizetoken"
+                                                                }
+                                                            },
+                                                            "HTTP_8": {
+                                                                "runAfter": {
+                                                                    "HTTP_7": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "Http",
+                                                                "inputs": {
+                                                                    "body": {
+                                                                        "email_address": "eapim.support@education.gov.uk",
+                                                                        "personalisation": {
+                                                                            " api-owner-email": "@{variables('APIOWNER-EMAIL')}",
+                                                                            "api-approver-email": "@{variables('APIAPPROVER-EMAIL')}",
+                                                                            "api-approver-name": "@{variables('APIAPPROVER')}",
+                                                                            "api-environment": "DEVELOPMENT",
+                                                                            "api-owner-name": "@{variables('APIOWNER')}",
+                                                                            "eapim-api-name": "@{variables('APINAME')}",
+                                                                            "eapim-ddhub-account-type": "@{items('For_each_2')?['creationType']}",
+                                                                            "eapim-ddhub-application-description": "@{items('For_each')?['description']}",
+                                                                            "eapim-ddhub-application-name": "@{variables('APPNAME')}",
+                                                                            "eapim-ddhub-requester-email": "@{items('For_each_2')?['identities'][0].issuerAssignedId}",
+                                                                            "eapim-ddhub-user-name": "@{items('For_each_2')?['displayName']}",
+                                                                            "eapim-environment": "DEVELOPMENT",
+                                                                            "eapim-subscription-name": "@{body('Parse_JSON_5')?['value']?['name']}"
+                                                                        },
+                                                                        "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-support')]"
+                                                                    },
+                                                                    "headers": {
+                                                                        "Authorization": "Bearer @{body('HTTP_7')}",
+                                                                        "content-type": "application/json"
+                                                                    },
+                                                                    "method": "POST",
+                                                                    "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
                                                                 }
                                                             }
                                                         },
@@ -979,7 +1069,7 @@
                             }
                         },
                         "runAfter": {
-                            "For_each_6": [
+                            "For_each_7": [
                                 "Succeeded"
                             ]
                         },
@@ -1271,9 +1361,44 @@
                         },
                         "type": "Foreach"
                     },
+                    "For_each_7": {
+                        "foreach": "@body('Parse_JSON_4')?['value']",
+                        "actions": {
+                            "Condition_9": {
+                                "actions": {
+                                    "Set_variable_15": {
+                                        "runAfter": {},
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "APINAME",
+                                            "value": "@{items('For_each_7')['properties']['value']}"
+                                        }
+                                    }
+                                },
+                                "runAfter": {},
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "contains": [
+                                                "@items('For_each_7')?['name']",
+                                                "APINAme"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "type": "If"
+                            }
+                        },
+                        "runAfter": {
+                            "For_each_6": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
                     "HTTP_4": {
                         "runAfter": {
-                            "Initialize_variable_2": [
+                            "Initialize_variable_15": [
                                 "Succeeded"
                             ]
                         },
@@ -1389,6 +1514,23 @@
                                     "name": "PRODUCTION-KEY",
                                     "type": "string",
                                     "value": "@body('Parse_JSON_5')?['ProductionKey']"
+                                }
+                            ]
+                        }
+                    },
+                    "Initialize_variable_15": {
+                        "runAfter": {
+                            "Initialize_variable_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "InitializeVariable",
+                        "inputs": {
+                            "variables": [
+                                {
+                                    "name": "APIEnvironment",
+                                    "type": "string",
+                                    "value": "PRODUCTION"
                                 }
                             ]
                         }
