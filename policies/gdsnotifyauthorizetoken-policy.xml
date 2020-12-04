@@ -1,0 +1,48 @@
+<policies>
+	<inbound>
+		<base />
+		<return-response>
+			<set-status code="200" reason="OK" />
+			<set-body>@{ 
+                string apiKey= "{{eapim-platform-gds-api-key}}";
+                string secret = "{{eapim-platform-gds-api-secret}}";
+                    
+                string headeralg = "HS256";
+                string headerType = "JWT";
+
+                char[] padding = { '=' };
+                var dto = new DateTimeOffset(DateTime.Now);
+                var epoc = dto.ToUnixTimeSeconds();
+                string header = "{\"alg\": \"" + headeralg + "\",\"typ\": \"" + headeralg + "\"}";
+                string payload = "{\"iss\": \"" + apiKey + "\",\"iat\":" + epoc + "}";
+                string header64 = Convert.ToBase64String(UTF8Encoding.UTF8.GetBytes(header)).TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+                string payload64 = Convert.ToBase64String(UTF8Encoding.UTF8.GetBytes(payload)).TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+                var hm = new HMACSHA256(UTF32Encoding.UTF8.GetBytes(secret));
+                var sig = Convert.ToBase64String(hm.ComputeHash(UTF32Encoding.UTF8.GetBytes(header64 + "." + payload64))).TrimEnd(padding).Replace('+', '-').Replace('/', '_'); ;
+
+                string full = header64 + "." + payload64 + "." + sig;
+                return full;
+    }</set-body>
+		</return-response>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<choose>
+			<when condition="@(context.LastError.Message.Contains(&quot;Expression evaluation failed&quot;)==true)">
+				<set-status code="400" reason="Bad request" />
+			</when>
+			<otherwise>
+				<set-status code="500" reason="Error" />
+			</otherwise>
+		</choose>
+		<set-body template="none">@{
+        return context.LastError.Message.Replace("Expression evaluation failed.","").Trim();
+    }</set-body>
+		<base />
+	</on-error>
+</policies>
