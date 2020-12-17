@@ -427,7 +427,7 @@
                                                                         "content-type": "application/json"
                                                                     },
                                                                     "method": "POST",
-                                                                    "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                                                                    "uri": "[parameters('gds-notify-api-service-url')]"
                                                                 }
                                                             },
                                                             "HTTP_7": {
@@ -474,7 +474,7 @@
                                                                         "content-type": "application/json"
                                                                     },
                                                                     "method": "POST",
-                                                                    "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                                                                    "uri": "[parameters('gds-notify-api-service-url')]"
                                                                 }
                                                             }
                                                         },
