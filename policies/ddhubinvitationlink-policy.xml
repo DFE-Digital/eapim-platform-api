@@ -12,6 +12,7 @@
 -->
 <policies>
 	<inbound>
+		<base />
 		<set-variable name="ObjectId" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string ObjectId = inBody.GetValue(&quot;objectId&quot;).ToString();&#xA;            return ObjectId;&#xA;        }" />
 		<!-- validate parameters-->
 		<choose>

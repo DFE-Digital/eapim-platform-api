@@ -222,11 +222,10 @@
           "parameters": {}
         }
       },
-      
       {
         "type": "Microsoft.Logic/workflows",
         "apiVersion": "2017-07-01",
-        "name": "[parameters('logicapp_send_email_name')]",
+       "name": "[parameters('logicapp_send_email_name')]",
         "location": "westeurope",
         "tags": {
             "BU": "ESFA",
@@ -262,23 +261,48 @@
                         "inputs": {
                             "schema": {
                                 "properties": {
-                                    "authorizationkey": {
-                                        "type": "string"
+                                    "body": {
+                                        "properties": {
+                                            "apimAuthToken": {
+                                                "type": "string"
+                                            },
+                                            "authorizationkey": {
+                                                "type": "string"
+                                            },
+                                            "content-type": {
+                                                "type": "string"
+                                            },
+                                            "email-content": {
+                                                "type": "string"
+                                            },
+                                            "email-from": {
+                                                "type": "string"
+                                            },
+                                            "email-to": {
+                                                "type": "string"
+                                            },
+                                            "subject": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
-                                    "content-type": {
-                                        "type": "string"
-                                    },
-                                    "email-content": {
-                                        "type": "string"
-                                    },
-                                    "email-from": {
-                                        "type": "string"
-                                    },
-                                    "email-to": {
-                                        "type": "string"
-                                    },
-                                    "subject": {
-                                        "type": "string"
+                                    "headers": {
+                                        "properties": {
+                                            "Content-Length": {
+                                                "type": "string"
+                                            },
+                                            "Content-Type": {
+                                                "type": "string"
+                                            },
+                                            "Host": {
+                                                "type": "string"
+                                            },
+                                            "X-Forwarded-For": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
                                     }
                                 },
                                 "type": "object"
@@ -312,15 +336,53 @@
                         }
                     },
                     "HTTP_2": {
-                        "runAfter": {},
+                        "runAfter": {
+                            "Parse_JSON": [
+                                "Succeeded"
+                            ]
+                        },
                         "type": "Http",
                         "inputs": {
                             "headers": {
+                                "Authorization": "@body('Parse_JSON')?['apimAuthToken']",
                                 "Content-type": "application/json",
-                                "Ocp-Apim-Subscription-Key": "[parameters('eapim-api-subscription-key')]"
+                               "Ocp-Apim-Subscription-Key": "[parameters('eapim-api-subscription-key')]"
                             },
                             "method": "GET",
-                            "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                             "uri": "[parameters('eapim-api-get-gds-notication-token-url')]"
+                        }
+                    },
+                    "Parse_JSON": {
+                        "runAfter": {},
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@triggerBody()",
+                            "schema": {
+                                "properties": {
+                                    "apimAuthToken": {
+                                        "type": "string"
+                                    },
+                                    "authorizationkey": {
+                                        "type": "string"
+                                    },
+                                    "content-type": {
+                                        "type": "string"
+                                    },
+                                    "email-content": {
+                                        "type": "string"
+                                    },
+                                    "email-from": {
+                                        "type": "string"
+                                    },
+                                    "email-to": {
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
                 },
@@ -328,13 +390,13 @@
             },
             "parameters": {}
         }
-      }      
+      }     
       ,      
   
       {
         "type": "Microsoft.Logic/workflows",
         "apiVersion": "2017-07-01",
-        "name": "[parameters('logicapp-create-subscription-event-handler')]",
+         "name": "[parameters('logicapp-create-subscription-event-handler')]",
         "location": "westeurope",
         "tags": {
             "Environment": "development",
@@ -358,30 +420,61 @@
                         "inputs": {
                             "schema": {
                                 "properties": {
-                                    "value": {
+                                    "body": {
                                         "properties": {
-                                            "apiName": {
+                                            "ProductionKey": {
                                                 "type": "string"
                                             },
-                                            "createdDate": {
+                                            "ProductionToken": {
                                                 "type": "string"
                                             },
-                                            "environment": {
+                                            "ProductionURL": {
                                                 "type": "string"
                                             },
-                                            "expirationDate": {
+                                            "value": {
+                                                "properties": {
+                                                    "apiName": {
+                                                        "type": "string"
+                                                    },
+                                                    "createdDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "environment": {
+                                                        "type": "string"
+                                                    },
+                                                    "expirationDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "startDate": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "headers": {
+                                        "properties": {
+                                            "Content-Length": {
                                                 "type": "string"
                                             },
-                                            "id": {
+                                            "Content-Type": {
                                                 "type": "string"
                                             },
-                                            "name": {
+                                            "Host": {
                                                 "type": "string"
                                             },
-                                            "startDate": {
-                                                "type": "string"
-                                            },
-                                            "state": {
+                                            "X-Forwarded-For": {
                                                 "type": "string"
                                             }
                                         },
@@ -420,7 +513,7 @@
                                                                             "APIName": "@{variables('APINAME')}",
                                                                             "UserName": "@{items('For_each_2')?['displayName']}"
                                                                         },
-                                                                        "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-user')]"
+                                                                          "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-user')]"
                                                                     },
                                                                     "headers": {
                                                                         "Authorization": "Bearer  @{body('HTTP_7')}",
@@ -435,6 +528,7 @@
                                                                 "type": "Http",
                                                                 "inputs": {
                                                                     "headers": {
+                                                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                                                         "Content-type": "application/json",
                                                                         "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
                                                                     },
@@ -456,7 +550,7 @@
                                                                             " api-owner-email": "@{variables('APIOWNER-EMAIL')}",
                                                                             "api-approver-email": "@{variables('APIAPPROVER-EMAIL')}",
                                                                             "api-approver-name": "@{variables('APIAPPROVER')}",
-                                                                            "api-environment": "[parameters('eapim-environment-name')]",
+                                                                             "api-environment": "[parameters('eapim-environment-name')]",
                                                                             "api-owner-name": "@{variables('APIOWNER')}",
                                                                             "eapim-api-name": "@{variables('APINAME')}",
                                                                             "eapim-ddhub-account-type": "@{items('For_each_2')?['creationType']}",
@@ -467,14 +561,14 @@
                                                                             "eapim-environment": "[parameters('eapim-environment-name')]",
                                                                             "eapim-subscription-name": "@{body('Parse_JSON_5')?['value']?['name']}"
                                                                         },
-                                                                        "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-support')]"
+                                                                     "template_id": "[parameters('gds-notify-api-service-template-id-ddhub-subscription-received-support')]"
                                                                     },
                                                                     "headers": {
                                                                         "Authorization": "Bearer @{body('HTTP_7')}",
                                                                         "content-type": "application/json"
                                                                     },
                                                                     "method": "POST",
-                                                                    "uri": "[parameters('gds-notify-api-service-url')]"
+                                                                "uri": "[parameters('gds-notify-api-service-url')]"
                                                                 }
                                                             }
                                                         },
@@ -747,6 +841,7 @@
                                                 "type": "Http",
                                                 "inputs": {
                                                     "headers": {
+                                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                                         "Content-Type": "application/json",
                                                         "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
                                                     },
@@ -1052,6 +1147,7 @@
                                 "type": "Http",
                                 "inputs": {
                                     "headers": {
+                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                         "Content-Type": "application/json",
                                         "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
                                     },
@@ -1096,6 +1192,7 @@
                                         "environment": "production"
                                     },
                                     "headers": {
+                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                         "Content-Type": "application/json",
                                         "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
                                     },
@@ -1164,6 +1261,7 @@
                                             "environment": "production"
                                         },
                                         "headers": {
+                                            "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                             "Content-Type": "application/json",
                                             "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
                                         },
@@ -1409,6 +1507,7 @@
                                 "environment": "production"
                             },
                             "headers": {
+                                "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
                                 "Content-Type": "application/json",
                                 "Ocp-Apim-Subscription-Key": "@variables('PRODUCTION-KEY')"
                             },
@@ -1781,6 +1880,9 @@
                                     "ProductionKey": {
                                         "type": "string"
                                     },
+                                    "ProductionToken": {
+                                        "type": "string"
+                                    },
                                     "ProductionURL": {
                                         "type": "string"
                                     },
@@ -1824,7 +1926,6 @@
             "parameters": {}
         }
     }
-
 
     ]
   }

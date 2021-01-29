@@ -13,6 +13,7 @@
 <policies>
 	<inbound>
 		<base />
+		<set-variable name="eapim-platform-api-oauth-token" value="@{&#xA;        string[] value;&#xA;        if (context.Request.Headers.TryGetValue(&quot;Authorization&quot;, out value))&#xA;        {&#xA;            if(value != null &amp;&amp; value.Length &gt; 0)&#xA;            {&#xA;                //return Encoding.UTF8.GetString(Convert.FromBase64String(value[0]));&#xA;                return value[0];&#xA;            }&#xA;        }&#xA;        return null;&#xA;&#xA;        }" />
 		<set-variable name="email-from" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string emailFrom = inBody.GetValue(&quot;email-from&quot;).ToString();&#xA;            return emailFrom;&#xA;        }" />
 		<set-variable name="email-to" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string emailTo = inBody.GetValue(&quot;email-to&quot;).ToString();&#xA;            return emailTo;&#xA;        }" />
 		<set-variable name="subject" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string sub = inBody.GetValue(&quot;subject&quot;).ToString();&#xA;            return sub;&#xA;        }" />
@@ -60,7 +61,7 @@
                 string content= (string)context.Variables["email-content"];
                 string contentType= (string)context.Variables["content-type"];
                 string authkey= (string)context.Variables["sendgrid-authorization-key"];
-
+                string token = (string)context.Variables["eapim-platform-api-oauth-token"];	
                 JObject data = new JObject();
 
                 data.Add("authorizationkey", authkey);
@@ -69,7 +70,7 @@
                 data.Add("subject", subject);
                 data.Add("content-type", contentType);
                 data.Add("email-content", content);
-
+                data.Add("apimAuthToken", token);
   
                 return data.ToString();
         }</set-body>

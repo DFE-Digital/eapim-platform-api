@@ -13,6 +13,14 @@
 <policies>
 	<inbound>
 		<base />
+       <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid.">
+            <openid-config url="{{eapim-platform-api-oauth-config-uri}}" />
+            <required-claims>
+                <claim name="aud">
+                    <value>{{eapim-platform-api-oauth-aud-claim}}</value>
+                </claim>
+            </required-claims>
+        </validate-jwt>		
 		<set-backend-service base-url="{{eapim-platform-management-api-baseurl}}/apis" />
 	</inbound>
 	<backend>
