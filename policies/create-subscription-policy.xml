@@ -34,6 +34,19 @@
 		<choose>
 			<when condition="@(context.Variables.GetValueOrDefault&lt;bool&gt;(&quot;isSandbox&quot;))">
 				<set-variable name="create_subscription_backend_url_sandbox" value="@{&#xA;                    string url = &quot;{{eapim-platform-api-sandbox-baseurl}}/Subscription&quot;;&#xA;                    return url;&#xA;                }" />
+				<send-request ignore-error="true" timeout="20" response-variable-name="sandbox-bearerToken" mode="new">
+					<set-url>{{eapim-platform-api-sandbox-oauth-tokenendpoint}}</set-url>
+					<set-method>POST</set-method>
+					<set-header name="Content-Type" exists-action="override">
+						<value>application/x-www-form-urlencoded</value>
+					</set-header>
+					<set-body>
+                    @{
+                        return "client_id={{eapim-platform-api-sanbox-clientId}}&amp;resource={{eapim-platform-api-sandbox-oauth-resource}}&amp;client_secret={{eapim-platform-api-sanbox-clientSecret}}&amp;grant_type=client_credentials";
+                    }
+                    </set-body>
+				</send-request>
+				<set-variable name="sandbox-accesstoken" value="@{&#xA;                    string tok = &quot;Bearer &quot; + (String)((IResponse)context.Variables[&quot;sandbox-bearerToken&quot;]).Body.As&lt;JObject&gt;()[&quot;access_token&quot;];&#xA;                    return tok;&#xA;                }" />
 				<send-request ignore-error="false" timeout="200" response-variable-name="createSubData-Sandbox">
 					<set-url>@((string)context.Variables["create_subscription_backend_url_sandbox"])</set-url>
 					<set-method>POST</set-method>
@@ -42,6 +55,12 @@
 					</set-header>
 					<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
 						<value>{{eapim-platform-api-sandbox-subscription-key}}</value>
+					</set-header>
+					<set-header name="Authorization" exists-action="override">
+						<value>@{
+                            String token =  (string) context.Variables["sandbox-accesstoken"];
+                            return token;
+                        }</value>
 					</set-header>
 					<set-body>@{
                         String applicationId  = (string) context.Variables["applicationId"]; 
