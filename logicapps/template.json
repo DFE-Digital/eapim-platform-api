@@ -841,7 +841,7 @@
                                                 "type": "Http",
                                                 "inputs": {
                                                     "headers": {
-                                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
+                                                            "Authorization": "@variables('EAPIM-OAUTH-TOK')",
                                                         "Content-Type": "application/json",
                                                         "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
                                                     },
@@ -1147,7 +1147,7 @@
                                 "type": "Http",
                                 "inputs": {
                                     "headers": {
-                                        "Authorization": "@body('Parse_JSON_5')?['ProductionToken']",
+                                            "Authorization": "@variables('EAPIM-OAUTH-TOK')",
                                         "Content-Type": "application/json",
                                         "Ocp-Apim-Subscription-Key": "@variables('EAPIM-SUBSCRIPTION-KEY')"
                                     },
@@ -1232,6 +1232,18 @@
                                     "value": "@true"
                                 }
                             },
+                                "Set_variable_16": {
+                                    "runAfter": {
+                                        "Set_variable_8": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EAPIM-OAUTH-TOK",
+                                        "value": "@{split(body('Parse_JSON_5')?['value']?['environment'],':')[3]}"
+                                    }
+                                },
                             "Set_variable_8": {
                                 "runAfter": {
                                     "Set_variable_11": [
@@ -1246,7 +1258,7 @@
                             }
                         },
                         "runAfter": {
-                            "Initialize_variable_14": [
+                                "Initialize_variable_16": [
                                 "Succeeded"
                             ]
                         },
@@ -1291,6 +1303,18 @@
                                     "inputs": {
                                         "name": "EAPIM-SUBSCRIPTION-KEY",
                                         "value": "@variables('PRODUCTION-KEY')"
+                                        }
+                                    },
+                                    "Set_variable_17": {
+                                        "runAfter": {
+                                            "Set_variable_13": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "EAPIM-OAUTH-TOK",
+                                            "value": "@body('Parse_JSON_5')?['ProductionToken']"
                                     }
                                 },
                                 "Set_variable_9": {
@@ -1634,6 +1658,23 @@
                             ]
                         }
                     },
+                        "Initialize_variable_16": {
+                            "runAfter": {
+                                "Initialize_variable_14": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EAPIM-OAUTH-TOK",
+                                        "type": "string",
+                                        "value": "\"\""
+                                    }
+                                ]
+                            }
+                        },
                     "Initialize_variable_2": {
                         "runAfter": {
                             "Initialize_variable": [
