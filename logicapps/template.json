@@ -45,7 +45,14 @@
       },  
       "eapim-api-subscription-key": {
         "type": "String"
-       }  
+       }
+       ,  
+       "logicapp_eapim-pip": {
+         "type": "String"
+        }
+
+       
+
     },
     "variables": {},
     "resources": [
@@ -59,6 +66,17 @@
           "Parent Business": "Shared IT Core Services",
           "Service Offering": "Enterprise API Management Service"
         },
+
+        "accessControl": {
+            "triggers": {
+                "allowedCallerIpAddresses": [
+                    {
+                        "addressRange": "[parameters('logicapp_eapim-pip')]"
+                    }
+                ]
+            }
+        },
+
         "properties": {
           "state": "Enabled",
           "definition": {
@@ -141,6 +159,18 @@
           "Parent Business": "Shared IT Core Services",
           "Service Offering": "Enterprise API Management Service"
         },
+
+        "accessControl": {
+            "triggers": {
+                "allowedCallerIpAddresses": [
+                    {
+                        "addressRange": "[parameters('logicapp_eapim-pip')]"
+                    }
+                ]
+            }
+        },
+
+
         "properties": {
           "state": "Enabled",
           "definition": {
@@ -248,6 +278,17 @@
             "hidden-link:/subscriptions/6baf9b49-a057-499a-bbe1-933ed45d37c5/resourcegroups/c106d01-eapim-shd/providers/Microsoft.Web/sites/c106d01-eapim-funcapp-create-verification-url": "Resource",
             "hidden-title": ""
         },
+
+        "accessControl": {
+            "triggers": {
+                "allowedCallerIpAddresses": [
+                    {
+                        "addressRange": "[parameters('logicapp_eapim-pip')]"
+                    }
+                ]
+            }
+        },
+
         "properties": {
             "state": "Enabled",
             "definition": {
@@ -407,6 +448,17 @@
             "Service Line": "CIPS",
             "Service Offering": "Enterprise API Management Service"
         },
+
+        "accessControl": {
+            "triggers": {
+                "allowedCallerIpAddresses": [
+                    {
+                        "addressRange": "[parameters('logicapp_eapim-pip')]"
+                    }
+                ]
+            }
+        },
+
         "properties": {
             "state": "Enabled",
             "definition": {
