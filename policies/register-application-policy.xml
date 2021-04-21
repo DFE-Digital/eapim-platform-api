@@ -70,7 +70,7 @@
             return (match.Value.ToString() != "") ? true : false;
         }" />
         <set-variable name="isValidDescription" value="@{
-            Match match = Regex.Match((string) context.Variables["description"], "^[a-zA-Z0-9 ,-_.@;[]()]*.{2,500}$");
+            Match match = Regex.Match((string) context.Variables["description"], "^[a-zA-Z0-9 ,-._@;]{2,500}$");
             return (match.Value.ToString() != "") ? true : false;
         }" />
         <set-variable name="isValidUrl" value="@{
