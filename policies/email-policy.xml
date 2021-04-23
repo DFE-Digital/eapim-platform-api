@@ -19,7 +19,29 @@
 		<set-variable name="subject" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string sub = inBody.GetValue(&quot;subject&quot;).ToString();&#xA;            return sub;&#xA;        }" />
 		<set-variable name="content-type" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string contentType = inBody.GetValue(&quot;content-type&quot;).ToString();&#xA;            return contentType;&#xA;        }" />
 		<set-variable name="email-content" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string content = inBody.GetValue(&quot;email-content&quot;).ToString();&#xA;            return content;&#xA;        }" />
-		<!-- validate environment-->
+		
+    <set-variable name="isValidFrom" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables["email-from"], "^[^<>]+$");
+        return (matchFrom.Value.ToString() != "") ? true : false;
+    }" />
+    <set-variable name="isValidTo" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables["email-to"], "^[^<>]+$");
+        return (matchFrom.Value.ToString() != "") ? true : false;
+    }" />
+    <set-variable name="isValidSubject" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables["subject"], "^[^<>]+$");
+        return (matchFrom.Value.ToString() != "") ? true : false;
+    }" />
+    <set-variable name="isValidContent" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables["email-content"], "^[^<>]+$");
+        return (matchFrom.Value.ToString() != "") ? true : false;
+    }" />
+    <set-variable name="isValidContentType" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables["content-type"], "^[^<>]+$");
+        return (matchFrom.Value.ToString() != "") ? true : false;
+    }" />
+    
+    <!-- validate environment-->
 		<choose>
 			<when condition="@(((string)context.Variables[&quot;email-from&quot;]).ToLower().Equals(&quot;&quot;))">
 				<return-response>
@@ -46,6 +68,31 @@
 					<set-status code="500" reason="content type cannot be empty." />
 				</return-response>
 			</when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidFrom"]))">
+          <return-response>
+              <set-status code="500" reason="Email &apos;from&apos; contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidTo"]))">
+          <return-response>
+              <set-status code="500" reason="Email &apos;to&apos; contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidSubject"]))">
+          <return-response>
+              <set-status code="500" reason="Subject field contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidContent"]))">
+          <return-response>
+              <set-status code="500" reason="Email content contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidContentType"]))">
+          <return-response>
+              <set-status code="500" reason="Content-type contains invalid characters." />
+          </return-response>
+      </when>
 		</choose>
 		<set-variable name="sendgrid-authorization-key" value="@{&#xA;            string key = &quot;{{eapim-platform-api-senddata-auth-key}}&quot;;&#xA;            return key;&#xA;        }" />
 		<send-request ignore-error="true" timeout="200" response-variable-name="emailResponse" mode="new">
