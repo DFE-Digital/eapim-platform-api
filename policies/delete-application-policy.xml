@@ -17,7 +17,43 @@
 		<set-variable name="userID" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userID = inBody.GetValue(&quot;userID&quot;).ToString();&#xA;            return userID;&#xA;        }" />
 		<set-variable name="userEmail" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string userEmail = inBody.GetValue(&quot;userEmail&quot;).ToString();&#xA;            return userEmail;&#xA;        }" />
 		<set-variable name="applicationId" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string organization = inBody.GetValue(&quot;applicationId&quot;).ToString();&#xA;            return organization;&#xA;        }" />
-		<send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
+		
+    <set-variable name="isValidUsername" value="@{
+        return Regex.Match((string) context.Variables["userName"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <set-variable name="isValidUserID" value="@{
+        return Regex.Match((string) context.Variables["userID"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <set-variable name="isValidEmail" value="@{
+        return Regex.Match((string) context.Variables["userEmail"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <set-variable name="isValidApplicationId" value="@{
+        return Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <choose>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidUsername"]))">
+        <return-response>
+            <set-status code="500" reason="User name contains invalid characters." />
+        </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidUserID"]))">
+        <return-response>
+            <set-status code="500" reason="User ID contains invalid characters." />
+        </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEmail"]))">
+        <return-response>
+            <set-status code="500" reason="User email contains invalid characters." />
+        </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationId"]))">
+        <return-response>
+            <set-status code="500" reason="Application ID contains invalid characters." />
+        </return-response>
+      </when>
+    </choose>
+    
+    <send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
 			<set-url>https://login.microsoftonline.com/{{eapim-platform-api-b2c-graph-tenant}}/oauth2/v2.0/token</set-url>
 			<set-method>POST</set-method>
 			<set-header name="Content-Type" exists-action="override">

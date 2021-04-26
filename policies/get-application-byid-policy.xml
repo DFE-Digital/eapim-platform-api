@@ -14,6 +14,10 @@
 	<inbound>
 		<base />
 		<set-variable name="applicationId" value="@(context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;))" />
+    <set-variable name="isValidApplicationId" value="@{
+        Match match = Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$");
+        return (match.Value.ToString() != "") ? true : false;
+    }" />
 		<!-- validate applicationID is not empty-->
 		<choose>
 			<when condition="@(((string)context.Variables[&quot;applicationId&quot;]).ToLower().Equals(&quot;&quot;))">
@@ -21,6 +25,11 @@
 					<set-status code="500" reason="Invalid application Id specified." />
 				</return-response>
 			</when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationId"]))">
+          <return-response>
+              <set-status code="500" reason="Invalid application Id specified." />
+          </return-response>
+      </when>
 		</choose>
 		<send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
 			<set-url>https://login.microsoftonline.com/{{eapim-platform-api-b2c-graph-tenant}}/oauth2/v2.0/token</set-url>
