@@ -15,7 +15,15 @@
 		<base />
 		<set-variable name="subscriptionId" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string subId = inBody.GetValue(&quot;subscriptionId&quot;).ToString();&#xA;            return subId;&#xA;        }" />
 		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string environment = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return environment;&#xA;        }" />
-		<!-- validate environment-->
+		
+    <set-variable name="isValidSubscriptionID" value="@{
+      return Regex.Match((string) context.Variables["subscriptionId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <set-variable name="isValidEnvironment" value="@{
+      return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    
+    <!-- validate environment-->
 		<choose>
 			<when condition="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;&quot;))">
 				<return-response>
@@ -27,6 +35,16 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidSubscriptionID"]))">
+        <return-response>
+            <set-status code="500" reason="Subscription ID contains invalid characters." />
+        </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEnvironment"]))">
+        <return-response>
+            <set-status code="500" reason="Environment contains invalid characters." />
+        </return-response>
+      </when>
 		</choose>
 		<set-variable name="isSandbox" value="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;sandbox&quot;))" />
 		<choose>

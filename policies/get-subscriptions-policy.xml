@@ -17,7 +17,20 @@
 		<set-variable name="applicationId" value="@{&#xA;            String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;);&#xA;            return applicationId;&#xA;        }" />
 		<set-variable name="noLoop" value="@{&#xA;                string value = context.Request.Headers.GetValueOrDefault(&quot;NoLoop&quot;,&quot;False&quot;) ;&#xA;                return value.ToLower().Equals(&quot;true&quot;);&#xA;        }" />
 		<set-variable name="checkUser_backend_url" value="@{&#xA;        String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;);&#xA;        applicationId = applicationId.Trim('\'');&#xA;        applicationId = &quot;ddhub-&quot;+ applicationId + &quot;-eapim-com&quot;;&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/users/&quot; +applicationId + &quot;?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
-		<send-request ignore-error="true" timeout="20" response-variable-name="userData" mode="new">
+		
+    <set-variable name="isValidApplicationID" value="@{
+      return Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+    }" />
+    <!-- validate environment-->
+		<choose>
+      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationID"]))">
+        <return-response>
+            <set-status code="500" reason="Application ID contains invalid characters." />
+        </return-response>
+      </when>
+		</choose>
+    
+    <send-request ignore-error="true" timeout="20" response-variable-name="userData" mode="new">
 			<set-url>@((string)context.Variables["checkUser_backend_url"])</set-url>
 			<set-method>GET</set-method>
 			<set-header name="Authorization" exists-action="override">
