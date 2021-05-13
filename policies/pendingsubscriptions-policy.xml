@@ -19,7 +19,6 @@
     <set-variable name="isValidEnvironment" value="@{
       return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
     }" />
-    
     <!-- validate environment-->
 		<choose>
 			<when condition="@(((string)context.Variables[&quot;environment&quot;]).ToLower().Equals(&quot;&quot;))">
