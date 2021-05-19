@@ -18,13 +18,13 @@
     <set-variable name="isValidUserID" value="@{
         return Regex.Match((string) context.Variables[&quot;userID&quot;], &quot;^[^<>]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
-    <choose>
+    <!-- <choose>
       <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidUserID&quot;]))">
         <return-response>
             <set-status code="500" reason="User ID contains invalid characters." />
         </return-response>
       </when>
-    </choose>
+    </choose> -->
     
     <send-request ignore-error="true" timeout="20" response-variable-name="bearerToken" mode="new">
 			<set-url>https://login.microsoftonline.com/{{eapim-platform-api-b2c-graph-tenant}}/oauth2/v2.0/token</set-url>
