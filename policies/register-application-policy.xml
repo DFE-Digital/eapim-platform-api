@@ -92,7 +92,7 @@
               }</set-body>
             </return-response>
           </when>
-          <when condition="@(!Convert.ToBoolean(context.Variables["isValidDescription"]))">
+          <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidDescription&quot;]))">
             <return-response>
               <set-status code="400" reason="Bad Request" />
               <set-header name="Content-Type" exists-action="override">
@@ -105,7 +105,7 @@
               }</set-body>
             </return-response>
           </when>
-          <when condition="@(!Convert.ToBoolean(context.Variables["isValidUrl"]))">
+          <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidUrl&quot;]))">
             <return-response>
               <set-status code="400" reason="Bad Request" />
               <set-header name="Content-Type" exists-action="override">
