@@ -66,15 +66,15 @@
 		<set-variable name="backend_url_generate_password" value="@{&#xA;            String appId = (string) context.Variables[&quot;applicationId&quot;];&#xA;            String backendurl = &quot;{{eapim-platform-api-b2c-graph-applications-url}}&quot;+ &quot;//&quot; + appId + &quot;//addPassword&quot; ;&#xA;            return backendurl;&#xA;        }" />
 		
     <set-variable name="isValidApplicationName" value="@{
-            Match match = Regex.Match((string) context.Variables[&quot;applicationName&quot;], &quot;&#8248;[a-zA-Z0-9 ]*.{2,50}$&quot;);
+            Match match = Regex.Match((string) context.Variables[&quot;applicationName&quot;], &quot;^[a-zA-Z0-9 ]*.{2,50}$&quot;);
             return (match.Value.ToString() != &quot;&quot;) ? true : false;
         }" />
         <set-variable name="isValidDescription" value="@{
-            Match match = Regex.Match((string) context.Variables[&quot;description&quot;], &quot;&#8248;[a-zA-Z0-9 ,-._@;]{2,500}$&quot;);
+            Match match = Regex.Match((string) context.Variables[&quot;description&quot;], &quot;^[a-zA-Z0-9 ,-._@;]{2,500}$&quot;);
             return (match.Value.ToString() != &quot;&quot;) ? true : false;
         }" />
         <set-variable name="isValidUrl" value="@{
-            Match match = Regex.Match((string) context.Variables[&quot;redirectUri&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;);
+            Match match = Regex.Match((string) context.Variables[&quot;redirectUri&quot;], &quot;^[^&lt;&gt;]+$&quot;);
             return (match.Value.ToString() != &quot;&quot;) ? true : false;
         }" />
 

@@ -19,7 +19,7 @@
 		<set-variable name="checkUser_backend_url" value="@{&#xA;        String applicationId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;);&#xA;        applicationId = applicationId.Trim('\'');&#xA;        applicationId = &quot;ddhub-&quot;+ applicationId + &quot;-eapim-com&quot;;&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/users/&quot; +applicationId + &quot;?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
 		
     <set-variable name="isValidApplicationID" value="@{
-      return Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
+      return Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;^[^&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <!-- validate environment-->
 		<choose>

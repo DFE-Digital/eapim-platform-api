@@ -15,7 +15,7 @@
 		<base />
 		<set-variable name="objectId" value="@(context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;objectId&quot;))" />
     <set-variable name="isValidObjectId" value="@{
-        Match match = Regex.Match((string) context.Variables[&quot;objectId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;);
+        Match match = Regex.Match((string) context.Variables[&quot;objectId&quot;], &quot;^[^&lt;&gt;]+$&quot;);
         return (match.Value.ToString() != &quot;&quot;) ? true : false;
     }" />
 		<!-- validate objectId is not empty-->

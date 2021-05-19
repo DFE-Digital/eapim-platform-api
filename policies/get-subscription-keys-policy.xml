@@ -18,10 +18,10 @@
 		<set-variable name="environment" value="@{&#xA;            String environment =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;environment&quot;);&#xA;            return environment;&#xA;        }" />
 		
     <set-variable name="isValidSubscriptionID" value="@{
-      return Regex.Match((string) context.Variables[&quot;subscriptionId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
+      return Regex.Match((string) context.Variables[&quot;subscriptionId&quot;], &quot;^[^&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEnvironment" value="@{
-      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
+      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;^[^&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <!-- validate environment-->
 		<choose>

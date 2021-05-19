@@ -15,7 +15,7 @@
 		<base />
 		<set-variable name="applicationId" value="@(context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;))" />
     <set-variable name="isValidApplicationId" value="@{
-        Match match = Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;);
+        Match match = Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;^[^&lt;&gt;]+$&quot;);
         return (match.Value.ToString() != &quot;&quot;) ? true : false;
     }" />
 		<!-- validate applicationID is not empty-->
