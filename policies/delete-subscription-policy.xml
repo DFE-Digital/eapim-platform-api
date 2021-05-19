@@ -35,12 +35,12 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidSubscriptionID"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidSubscriptionID&quot;]))">
         <return-response>
             <set-status code="500" reason="Subscription ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEnvironment"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidEnvironment&quot;]))">
         <return-response>
             <set-status code="500" reason="Environment contains invalid characters." />
         </return-response>
