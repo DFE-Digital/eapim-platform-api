@@ -19,13 +19,13 @@
 		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string env = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return env;&#xA;        }" />
 		
     <set-variable name="isValidApplicationID" value="@{
-      return Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidApiName" value="@{
-      return Regex.Match((string) context.Variables["apiName"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;apiName&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEnvironment" value="@{
-      return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     
     <!-- validate environment-->
@@ -40,17 +40,17 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationID"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidApplicationID&quot;]))">
         <return-response>
             <set-status code="500" reason="Application ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApiName"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidApiName&quot;]))">
         <return-response>
             <set-status code="500" reason="Api name contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEnvironment"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidEnvironment&quot;]))">
         <return-response>
             <set-status code="500" reason="Environment contains invalid characters." />
         </return-response>

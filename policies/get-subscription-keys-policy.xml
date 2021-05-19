@@ -18,10 +18,10 @@
 		<set-variable name="environment" value="@{&#xA;            String environment =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;environment&quot;);&#xA;            return environment;&#xA;        }" />
 		
     <set-variable name="isValidSubscriptionID" value="@{
-      return Regex.Match((string) context.Variables["subscriptionId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;subscriptionId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEnvironment" value="@{
-      return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <!-- validate environment-->
 		<choose>
@@ -30,12 +30,12 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidSubscriptionID"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidSubscriptionID&quot;]))">
         <return-response>
             <set-status code="500" reason="Subscription ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEnvironment"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidEnvironment&quot;]))">
         <return-response>
             <set-status code="500" reason="Environment contains invalid characters." />
         </return-response>

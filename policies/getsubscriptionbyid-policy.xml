@@ -17,10 +17,10 @@
 		<set-variable name="Id" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string Id = inBody.GetValue(&quot;Id&quot;).ToString();&#xA;            return Id;&#xA;        }" />
 
     <set-variable name="isValidID" value="@{
-      return Regex.Match((string) context.Variables["Id"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;Id&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEnvironment" value="@{
-      return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     
     <!-- validate environment-->
@@ -35,12 +35,12 @@
 					<set-status code="500" reason="Invalid environment specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidID"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidID&quot;]))">
         <return-response>
             <set-status code="500" reason="ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEnvironment"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidEnvironment&quot;]))">
         <return-response>
             <set-status code="500" reason="Environment contains invalid characters." />
         </return-response>

@@ -15,8 +15,8 @@
 		<base />
 		<set-variable name="applicationId" value="@(context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;applicationId&quot;))" />
     <set-variable name="isValidApplicationId" value="@{
-        Match match = Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$");
-        return (match.Value.ToString() != "") ? true : false;
+        Match match = Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;);
+        return (match.Value.ToString() != &quot;&quot;) ? true : false;
     }" />
 		<!-- validate applicationID is not empty-->
 		<choose>
@@ -25,7 +25,7 @@
 					<set-status code="500" reason="Invalid application Id specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationId"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidApplicationId&quot;]))">
           <return-response>
               <set-status code="500" reason="Invalid application Id specified." />
           </return-response>

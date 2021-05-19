@@ -17,10 +17,10 @@
 		<set-variable name="environment" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string environment = inBody.GetValue(&quot;environment&quot;).ToString();&#xA;            return environment;&#xA;        }" />
 		
     <set-variable name="isValidSubscriptionID" value="@{
-      return Regex.Match((string) context.Variables["subscriptionId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;subscriptionId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEnvironment" value="@{
-      return Regex.Match((string) context.Variables["environment"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+      return Regex.Match((string) context.Variables[&quot;environment&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     
     <!-- validate environment-->

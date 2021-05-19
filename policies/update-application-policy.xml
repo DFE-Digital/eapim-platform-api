@@ -21,43 +21,43 @@
 		<set-variable name="web" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            JObject webObj = (JObject)inBody.GetValue(&quot;web&quot;);&#xA;            return webObj;&#xA;        }" />
 		
     <set-variable name="isValidUsername" value="@{
-        return Regex.Match((string) context.Variables["userName"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+        return Regex.Match((string) context.Variables[&quot;userName&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidUserID" value="@{
-        return Regex.Match((string) context.Variables["userID"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+        return Regex.Match((string) context.Variables[&quot;userID&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidEmail" value="@{
-        return Regex.Match((string) context.Variables["userEmail"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+        return Regex.Match((string) context.Variables[&quot;userEmail&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidApplicationId" value="@{
-        return Regex.Match((string) context.Variables["applicationId"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+        return Regex.Match((string) context.Variables[&quot;applicationId&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
     <set-variable name="isValidDescription" value="@{
-        return Regex.Match((string) context.Variables["description"], "^[^<>]+$").Value.ToString() != "" ? true : false;
+        return Regex.Match((string) context.Variables[&quot;description&quot;], &quot;&#8248;[&#8248;&lt;&gt;]+$&quot;).Value.ToString() != &quot;&quot; ? true : false;
     }" />
 
     <choose>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidUsername"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidUsername&quot;]))">
         <return-response>
             <set-status code="500" reason="User name contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidUserID"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidUserID&quot;]))">
         <return-response>
             <set-status code="500" reason="User ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidEmail"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidEmail&quot;]))">
         <return-response>
             <set-status code="500" reason="User email contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidApplicationId"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidApplicationId&quot;]))">
         <return-response>
             <set-status code="500" reason="Application ID contains invalid characters." />
         </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidDescription"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidDescription&quot;]))">
         <return-response>
             <set-status code="500" reason="Description contains invalid characters." />
         </return-response>
