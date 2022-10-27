@@ -1,0 +1,166 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="eapim-platform-api-oauth-token" value="@{&#xA;        string[] value;&#xA;        if (context.Request.Headers.TryGetValue(&quot;Authorization&quot;, out value))&#xA;        {&#xA;            if(value != null &amp;&amp; value.Length &gt; 0)&#xA;            {&#xA;                //return Encoding.UTF8.GetString(Convert.FromBase64String(value[0]));&#xA;                return value[0];&#xA;            }&#xA;        }&#xA;        return null;&#xA;&#xA;        }" />
+		<set-variable name="email-from" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string emailFrom = inBody.GetValue(&quot;email-from&quot;).ToString();&#xA;            return emailFrom;&#xA;        }" />
+		<set-variable name="email-to" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string emailTo = inBody.GetValue(&quot;email-to&quot;).ToString();&#xA;            return emailTo;&#xA;        }" />
+		<set-variable name="subject" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string sub = inBody.GetValue(&quot;subject&quot;).ToString();&#xA;            return sub;&#xA;        }" />
+		<set-variable name="content-type" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string contentType = inBody.GetValue(&quot;content-type&quot;).ToString();&#xA;            return contentType;&#xA;        }" />
+		<set-variable name="email-content" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string content = inBody.GetValue(&quot;email-content&quot;).ToString();&#xA;            return content;&#xA;        }" />
+        <set-variable name="fullname" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string fullname = inBody.GetValue(&quot;fullname&quot;).ToString();&#xA;            return fullname;&#xA;        }" />
+        <set-variable name="api" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string api = inBody.GetValue(&quot;api&quot;).ToString();&#xA;            return api;&#xA;        }" />
+		
+    <set-variable name="isValidFrom" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-from&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidTo" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-to&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidSubject" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;subject&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidContent" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-content&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidContentType" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;content-type&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidName" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;fullname&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <set-variable name="isValidApi" value="@{
+        Match matchFrom = Regex.Match((string) context.Variables[&quot;api&quot;], &quot;^[^&lt;&gt;]+$&quot;);
+        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
+    }" />
+    <!-- validate environment-->
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;email-from&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid email-from specified." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;email-to&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid email-to specified." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;subject&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid subject specified." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;email-content&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="content cannot be empty." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;content-type&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="content type cannot be empty." />
+				</return-response>
+			</when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidFrom&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Email &apos;from&apos; contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidTo&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Email &apos;to&apos; contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidSubject&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Subject field contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidName&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Full name field contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidApi&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Api field contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidContent&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Email content contains invalid characters." />
+          </return-response>
+      </when>
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidContentType&quot;]))">
+          <return-response>
+              <set-status code="500" reason="Content-type contains invalid characters." />
+          </return-response>
+      </when>
+		</choose>
+
+    <!-- Check if support request is regarding particular API -->
+        <set-variable name="isApiIssue" value="@{&#xA;            JObject inBody = context.Request.Body.As<JObject>(preserveContent: true);&#xA;            return (bool)inBody.GetValue(&quot;apiIssue&quot;);&#xA;        }" />
+
+
+		<set-variable name="sendgrid-authorization-key" value="@{&#xA;            string key = &quot;{{eapim-platform-api-senddata-auth-key}}&quot;;&#xA;            return key;&#xA;        }" />
+		<send-request ignore-error="true" timeout="200" response-variable-name="emailResponse" mode="new">
+			<set-url>{{eapim-platform-api-send-support-email-logic-app}}</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-body>@{
+                string emailFrom = (string)context.Variables["email-from"];	
+                string emailTo = (string)context.Variables["email-to"];
+                string subject = (string)context.Variables["subject"];
+                string content= (string)context.Variables["email-content"];
+                string fullName = (string)context.Variables["fullname"];
+                string api = (string)context.Variables["api"];
+                bool apiIssue = (bool)context.Variables["isApiIssue"];
+                string contentType= (string)context.Variables["content-type"];
+                string authkey= (string)context.Variables["sendgrid-authorization-key"];
+                string token = (string)context.Variables["eapim-platform-api-oauth-token"];	
+                JObject data = new JObject();
+
+                data.Add("authorizationkey", authkey);
+                data.Add("email-from", emailFrom);
+                data.Add("email-to", emailTo);
+                data.Add("subject", subject);
+                data.Add("content-type", contentType);
+                data.Add("email-content", content);
+                data.Add("fullname", fullName);
+                data.Add("api", api);
+                data.Add("apiIssue",apiIssue);
+                data.Add("apimAuthToken", token);
+  
+                return data.ToString();
+        }</set-body>
+		</send-request>
+		<return-response response-variable-name="emailResponse" />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
