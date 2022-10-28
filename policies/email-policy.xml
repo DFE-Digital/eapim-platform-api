@@ -20,26 +20,11 @@
 		<set-variable name="content-type" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string contentType = inBody.GetValue(&quot;content-type&quot;).ToString();&#xA;            return contentType;&#xA;        }" />
 		<set-variable name="email-content" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string content = inBody.GetValue(&quot;email-content&quot;).ToString();&#xA;            return content;&#xA;        }" />
 		
-    <set-variable name="isValidFrom" value="@{
-        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-from&quot;], &quot;^[^&lt;&gt;]+$&quot;);
-        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
-    }" />
-    <set-variable name="isValidTo" value="@{
-        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-to&quot;], &quot;^[^&lt;&gt;]+$&quot;);
-        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
-    }" />
-    <set-variable name="isValidSubject" value="@{
-        Match matchFrom = Regex.Match((string) context.Variables[&quot;subject&quot;], &quot;^[^&lt;&gt;]+$&quot;);
-        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
-    }" />
-    <set-variable name="isValidContent" value="@{
-        Match matchFrom = Regex.Match((string) context.Variables[&quot;email-content&quot;], &quot;^[^&lt;&gt;]+$&quot;);
-        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
-    }" />
-    <set-variable name="isValidContentType" value="@{
-        Match matchFrom = Regex.Match((string) context.Variables[&quot;content-type&quot;], &quot;^[^&lt;&gt;]+$&quot;);
-        return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;
-    }" />
+    <set-variable name="isValidFrom" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;email-from&quot;], &quot;^[^&lt;&gt;]+$&quot;);&#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+    <set-variable name="isValidTo" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;email-to&quot;], &quot;^[^&lt;&gt;]+$&quot;);&#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+    <set-variable name="isValidSubject" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;subject&quot;], &quot;^[^&lt;&gt;]+$&quot;);&#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+    <set-variable name="isValidContent" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;email-content&quot;], &quot;^[^&lt;&gt;]+$&quot;);&#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+    <set-variable name="isValidContentType" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;content-type&quot;], &quot;^[^&lt;&gt;]+$&quot;);&#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
     
     <!-- validate environment-->
 		<choose>
