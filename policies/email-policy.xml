@@ -68,27 +68,27 @@
 					<set-status code="500" reason="content type cannot be empty." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidFrom"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidFrom&quot;]))">
           <return-response>
               <set-status code="500" reason="Email &apos;from&apos; contains invalid characters." />
           </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidTo"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidTo&quot;]))">
           <return-response>
               <set-status code="500" reason="Email &apos;to&apos; contains invalid characters." />
           </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidSubject"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidSubject&quot;]))">
           <return-response>
               <set-status code="500" reason="Subject field contains invalid characters." />
           </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidContent"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidContent&quot;]))">
           <return-response>
               <set-status code="500" reason="Email content contains invalid characters." />
           </return-response>
       </when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidContentType"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidContentType&quot;]))">
           <return-response>
               <set-status code="500" reason="Content-type contains invalid characters." />
           </return-response>
