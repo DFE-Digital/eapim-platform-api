@@ -115,9 +115,7 @@
 		</choose>
 
     <!-- Check if support request is regarding particular API -->
-        <set-variable name="isApiIssue" value="@{&#xA;            JObject inBody = context.Request.Body.As<JObject>(preserveContent: true);&#xA;            return (bool)inBody.GetValue(&quot;apiIssue&quot;);&#xA;        }" />
-
-
+        <set-variable name="isApiIssue" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            return (bool)inBody.GetValue(&quot;apiIssue&quot;);&#xA;        }" />
 		<set-variable name="sendgrid-authorization-key" value="@{&#xA;            string key = &quot;{{eapim-platform-api-senddata-auth-key}}&quot;;&#xA;            return key;&#xA;        }" />
 		<send-request ignore-error="true" timeout="200" response-variable-name="emailResponse" mode="new">
 			<set-url>{{eapim-platform-api-send-support-email-logic-app}}</set-url>
