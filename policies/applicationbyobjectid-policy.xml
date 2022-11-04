@@ -25,7 +25,7 @@
 					<set-status code="500" reason="Invalid application Id specified." />
 				</return-response>
 			</when>
-      <when condition="@(!Convert.ToBoolean(context.Variables["isValidObjectId"]))">
+      <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidObjectId&quot;]))">
           <return-response>
               <set-status code="500" reason="Invalid application Id specified." />
           </return-response>

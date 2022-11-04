@@ -208,6 +208,18 @@
           }
         }
       },
+      "/EmailSupport": {
+        "post": {
+          "description": "EmailSupport",
+          "operationId": "emailsupport",
+          "summary": "EmailSupport",
+          "responses": {
+            "200": {
+              "description": "Send support email"
+            }
+          }
+        }
+      },
       "/ddhubinvitationemail": {
         "post": {
           "description": "sends the eapim developer hub invitation email",
