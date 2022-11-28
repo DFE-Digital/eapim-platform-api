@@ -121,7 +121,7 @@
         </choose>
 		<set-variable name="sendgrid-authorization-key" value="@{&#xA;            string key = &quot;{{eapim-platform-api-senddata-auth-key}}&quot;;&#xA;            return key;&#xA;        }" />
 		<send-request ignore-error="true" timeout="200" response-variable-name="emailResponse" mode="new">
-			<set-url>{{eapim-platform-api-send-support-email-logic-app}}</set-url>
+			<set-url>{{eapim-platform-api-send-feedback-email-logic-app}}</set-url>
 			<set-method>POST</set-method>
 			<set-header name="Content-Type" exists-action="override">
 				<value>application/json</value>
