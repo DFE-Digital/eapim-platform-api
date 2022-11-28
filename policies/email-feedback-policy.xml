@@ -1,0 +1,176 @@
+<!--
+    IMPORTANT:
+    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.
+    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.
+    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.
+    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.
+    - To remove a policy, delete the corresponding policy statement from the policy document.
+    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.
+    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.
+    - Policies are applied in the order of their appearance, from the top down.
+    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.
+-->
+<policies>
+	<inbound>
+		<base />
+		<set-variable name="eapim-platform-api-oauth-token" value="@{&#xA;        string[] value;&#xA;        if (context.Request.Headers.TryGetValue(&quot;Authorization&quot;, out value))&#xA;        {&#xA;            if(value != null &amp;&amp; value.Length &gt; 0)&#xA;            {&#xA;                //return Encoding.UTF8.GetString(Convert.FromBase64String(value[0]));&#xA;                return value[0];&#xA;            }&#xA;        }&#xA;        return null;&#xA;&#xA;        }" />
+		<set-variable name="email-to" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string emailTo = inBody.GetValue(&quot;email-to&quot;).ToString();&#xA;            return emailTo;&#xA;        }" />
+		<set-variable name="subject" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string sub = inBody.GetValue(&quot;subject&quot;).ToString();&#xA;            return sub;&#xA;        }" />
+		<set-variable name="content-type" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string contentType = inBody.GetValue(&quot;content-type&quot;).ToString();&#xA;            return contentType;&#xA;        }" />
+		<set-variable name="email-content" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string content = inBody.GetValue(&quot;email-content&quot;).ToString();&#xA;            return content;&#xA;        }" />
+        <set-variable name="relationship" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string relationship = inBody.GetValue(&quot;relationship&quot;).ToString();&#xA;            return relationship;&#xA;        }" />
+        <set-variable name="relationshipOther" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string relationshipOther = inBody.GetValue(&quot;relationshipOther&quot;).ToString();&#xA;            return relationshipOther;&#xA;        }" />
+        <set-variable name="role" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string role = inBody.GetValue(&quot;role&quot;).ToString();&#xA;            return role;&#xA;        }" />
+        <set-variable name="roleOther" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string roleOther = inBody.GetValue(&quot;roleOther&quot;).ToString();&#xA;            return roleOther;&#xA;        }" />
+        <set-variable name="experience" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string experience = inBody.GetValue(&quot;experience&quot;).ToString();&#xA;            return experience;&#xA;        }" />
+        <set-variable name="experienceAbout" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string experienceAbout = inBody.GetValue(&quot;experienceAbout&quot;).ToString();&#xA;            return experienceAbout;&#xA;        }" />
+        <set-variable name="otherFeedback" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string otherFeedback = inBody.GetValue(&quot;otherFeedback&quot;).ToString();&#xA;            return otherFeedback;&#xA;        }" />
+        <set-variable name="futureResearch" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string futureResearch = inBody.GetValue(&quot;futureResearch&quot;).ToString();&#xA;            return futureResearch;&#xA;        }" />
+        <set-variable name="futureResearchEmail" value="@{&#xA;            JObject inBody = context.Request.Body.As&lt;JObject&gt;(preserveContent: true); &#xA;            string futureResearchEmail = inBody.GetValue(&quot;futureResearchEmail&quot;).ToString();&#xA;            return futureResearchEmail;&#xA;        }" />
+        <set-variable name="isValidTo" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;email-to&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <set-variable name="isValidSubject" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;subject&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <set-variable name="isValidContentType" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;content-type&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <!-- validate radio return values -->
+        <set-variable name="isValidRelationship" value="@{&#xA; string strRelationship = (string)context.Variables[&quot;relationship&quot;]; &#xA; if( &#xA; strRelationship == &quot;DfE_Employee&quot; || &#xA; strRelationship == &quot;Other_Department&quot; || &#xA; strRelationship == &quot;Outside_Government&quot; || &#xA; strRelationship == &quot;Other&quot; &#xA; ) { return true; } &#xA; else { return false; } &#xA; }" />
+        <set-variable name="isValidRelationshipOther" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;relationshipOther&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <set-variable name="isValidRole" value="@{&#xA; string strRole = (string)context.Variables[&quot;role&quot;]; &#xA; if( &#xA; strRole == &quot;Developer&quot; || &#xA; strRole == &quot;Architect&quot; || &#xA; strRole == &quot;Data_Analyst-Scientist&quot; || &#xA; strRole == &quot;Product_Owner&quot; &#xA; || &#xA; strRole == &quot;Business_Analyst&quot; &#xA; || &#xA; strRole == &quot;Service_Designer&quot; &#xA; || &#xA; strRole == &quot;Other&quot; &#xA; ) { return true; } &#xA; else { return false; } &#xA; }" />
+        <set-variable name="isValidRoleOther" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;roleOther&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <set-variable name="isValidExperience" value="@{&#xA; string strExperience = (string)context.Variables[&quot;experience&quot;]; &#xA; if( &#xA; strExperience == &quot;1&quot; || &#xA; strExperience == &quot;2&quot; || &#xA; strExperience == &quot;3&quot; || &#xA; strExperience == &quot;4&quot; &#xA; || &#xA; strExperience == &quot;5&quot; &#xA; || &#xA; strExperience == &quot;6&quot; &#xA; || &#xA; strExperience == &quot;7&quot; &#xA; || &#xA; strExperience == &quot;8&quot; &#xA; || &#xA; strExperience == &quot;9&quot; &#xA; || &#xA; strExperience == &quot;10&quot; &#xA; ) { return true; } &#xA; else { return false; } &#xA; }" />
+        <set-variable name="isValidFutureResearch" value="@{&#xA;            Match matchFrom = Regex.Match((string) context.Variables[&quot;futureResearch&quot;], &quot;^[^&lt;&gt;]+$&quot;); &#xA;            return (matchFrom.Value.ToString() != &quot;&quot;) ? true : false;&#xA;        }" />
+        <!-- validate environment-->
+		<choose>
+			<when condition="@(((string)context.Variables[&quot;email-to&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid email-to specified." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;subject&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Invalid subject specified." />
+				</return-response>
+			</when>
+			<when condition="@(((string)context.Variables[&quot;content-type&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="content type cannot be empty." />
+				</return-response>
+			</when>
+            <when condition="@(((string)context.Variables[&quot;relationship&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Relationship cannot be empty." />
+				</return-response>
+			</when>
+            <when condition="@(((string)context.Variables[&quot;role&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Role cannot be empty." />
+				</return-response>
+			</when>
+            <when condition="@(((string)context.Variables[&quot;experience&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Experience cannot be empty." />
+				</return-response>
+			</when>
+            <when condition="@(((string)context.Variables[&quot;futureResearch&quot;]).ToLower().Equals(&quot;&quot;))">
+				<return-response>
+					<set-status code="500" reason="Future Research cannot be empty." />
+				</return-response>
+			</when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidTo&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Email &apos;to&apos; contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidSubject&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Subject field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidRelationship&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Relationship field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidRelationshipOther&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Relationship Other field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidExperience&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Experience field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidRole&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Role field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidRoleOther&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Role Other field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidFutureResearch&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Future Research field contains invalid characters." />
+                </return-response>
+            </when>
+            <when condition="@(!Convert.ToBoolean(context.Variables[&quot;isValidContentType&quot;]))">
+                <return-response>
+                    <set-status code="500" reason="Content-type contains invalid characters." />
+                </return-response>
+            </when>
+        </choose>
+		<set-variable name="sendgrid-authorization-key" value="@{&#xA;            string key = &quot;{{eapim-platform-api-senddata-auth-key}}&quot;;&#xA;            return key;&#xA;        }" />
+		<send-request ignore-error="true" timeout="200" response-variable-name="emailResponse" mode="new">
+			<set-url>{{eapim-platform-api-send-support-email-logic-app}}</set-url>
+			<set-method>POST</set-method>
+			<set-header name="Content-Type" exists-action="override">
+				<value>application/json</value>
+			</set-header>
+			<set-body>@{
+                string emailTo = (string)context.Variables["email-to"];
+                string subject = (string)context.Variables["subject"];
+                string relationship = (string)context.Variables["relationship"];
+                string relationshipOther = (string)context.Variables["relationshipOther"];
+                string role = (string)context.Variables["role"];
+                string roleOther = (string)context.Variables["roleOther"];
+                string experience = (string)context.Variables["experience"];
+                string experienceAbout = (string)context.Variables["experienceAbout"];
+                string otherFeedback = (string)context.Variables["otherFeedback"];
+                string futureResearch = (string)context.Variables["futureResearch"];
+                string futureResearchEmail = (string)context.Variables["futureResearchEmail"];
+                string contentType= (string)context.Variables["content-type"];
+                string authkey= (string)context.Variables["sendgrid-authorization-key"];
+                string token = (string)context.Variables["eapim-platform-api-oauth-token"];	
+                JObject data = new JObject();
+
+                data.Add("authorizationkey", authkey);
+                data.Add("email-to", emailTo);
+                data.Add("subject", subject);
+                data.Add("content-type", contentType);
+                data.Add("relationship", relationship);
+                data.Add("relationshipOther", relationshipOther);
+                data.Add("role", role);
+                data.Add("roleOther", roleOther);
+                data.Add("experience", experience);
+                data.Add("experienceAbout", experienceAbout);
+                data.Add("otherFeedback", otherFeedback);
+                data.Add("futureResearch", futureResearch);
+                data.Add("futureResearchEmail", futureResearchEmail);
+                data.Add("apimAuthToken", token);
+  
+                return data.ToString();
+        }</set-body>
+		</send-request>
+		<return-response response-variable-name="emailResponse" />
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+	<on-error>
+		<base />
+	</on-error>
+</policies>
