@@ -220,6 +220,18 @@
           }
         }
       },
+      "/EmailFeedback": {
+        "post": {
+          "description": "EmailFeedback",
+          "operationId": "emailfeedback",
+          "summary": "EmailFeedback",
+          "responses": {
+            "200": {
+              "description": "Send feedback email"
+            }
+          }
+        }
+      },
       "/ddhubinvitationemail": {
         "post": {
           "description": "sends the eapim developer hub invitation email",
