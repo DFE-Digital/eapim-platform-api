@@ -70,7 +70,7 @@
             return (match.Value.ToString() != &quot;&quot;) ? true : false;
         }" />
         <set-variable name="isValidDescription" value="@{
-            Match match = Regex.Match((string) context.Variables[&quot;description&quot;], &quot;^[a-zA-Z0-9 ,-._@;]{2,500}$&quot;);
+            Match match = Regex.Match((string) context.Variables[&quot;description&quot;], &quot;^[a-zA-Z0-9 ,-._@;]{2,1000}$&quot;);
             return (match.Value.ToString() != &quot;&quot;) ? true : false;
         }" />
         <set-variable name="isValidUrl" value="@{
@@ -100,7 +100,7 @@
               </set-header>
               <set-body>@{
                   var err = new JObject();
-                  err.Add("description", "Description contains invalid characters.");
+                  err.Add("description", "Description contains invalid characters or is above the 1000 character limit.");
                   return err.ToString();
               }</set-body>
             </return-response>
