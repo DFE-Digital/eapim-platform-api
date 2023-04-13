@@ -113,6 +113,7 @@
 		<set-variable name="ownerId" value="@{&#xA;        String applicationId =  (string) context.Variables[&quot;applicationId&quot;];&#xA;        applicationId = applicationId.Trim('\'');&#xA;        String ownerId = &quot;ddhub-&quot;+applicationId + &quot;-eapim-com&quot;;&#xA;        return ownerId;&#xA;        }" />
 		<set-variable name="scope" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;];&#xA;        apiName = apiName.Trim('\'');&#xA;        String scope = &quot;/apis/&quot;+ apiName;&#xA;        return scope;&#xA;        }" />
 		<set-variable name="subscriptionId" value="@{&#xA;        String ownerId =  (string) context.Variables[&quot;ownerId&quot;];&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;];&#xA;        String subscriptionId = ownerId + &quot;-&quot; + apiName;&#xA;        return subscriptionId;&#xA;        }" />
+		<set-variable name="autoSubscribe" value="@{&#xA;        String autoSubApis = &quot;{{eapim-platform-api-autosubscribe-apis}}&quot;;   &#xA;        autoSubApis = autoSubApis.ToLower();   &#xA;        String apiName = (string) context.Variables[&quot;apiName&quot;];&#xA;        apiName = apiName.Trim('\'').ToLower();&#xA;        bool autoSubscribe = (bool) autoSubApis.Contains(apiName);&#xA;        return autoSubscribe;&#xA;        }" />
 		<send-request ignore-error="true" timeout="200" response-variable-name="subsData">
 			<set-url>{{eapim-platform-api-create-subscription-logic-app}}</set-url>
 			<set-method>POST</set-method>
@@ -124,6 +125,9 @@
                         String ownerId  = (string) context.Variables["ownerId"]; 
                         String scope = (string) context.Variables["scope"]; 
                         String subscriptionId =   (string) context.Variables["subscriptionId"];
+						String applicationId = (string) context.Variables["applicationId"];
+                        bool autoSubscribe = (bool) context.Variables["autoSubscribe"];
+                        String apiName = (string) context.Variables["apiName"];
                         JObject result = new JObject();
                         JObject props = new JObject();
                         props.Add("authorization",encodedToken);
@@ -131,6 +135,9 @@
                         props.Add("ownerId","/users/"+ownerId);
                         props.Add("scope",scope);
                         props.Add("displayName",subscriptionId);
+						props.Add("applicationId",applicationId);
+                        props.Add("autoSubscribe",autoSubscribe);
+                        props.Add("apiName",apiName);
                         result.Add("properties",props);
                         return result.ToString();
                     }</set-body>
