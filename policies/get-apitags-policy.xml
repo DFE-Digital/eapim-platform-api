@@ -25,7 +25,7 @@
 			</when>
 		</choose>
 		<set-query-parameter name="api-version" exists-action="skip">
-			<value>2018-06-01-preview</value>
+			<value>2022-08-01</value>
 		</set-query-parameter>
 		<set-query-parameter name="expandApiVersionSet" exists-action="skip">
 			<value>true</value>
@@ -34,7 +34,7 @@
 			<value>@($"{(string)context.Variables["apis_access_token"]}")</value>
 		</set-header>
 		<set-backend-service base-url="{{eapim-platform-management-api-baseurl}}" />
-		<set-variable name="apitags_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/apis/&quot; +apiName + &quot;/tags?&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<set-variable name="apitags_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/apis/&quot; +apiName + &quot;/tags?&amp;api-version=2022-08-01&quot;;&#xA;        return url;&#xA;        }" />
 		<send-request ignore-error="true" timeout="20" response-variable-name="tagsDataForAPI" mode="new">
 			<set-url>@((string)context.Variables["apitags_backend_url"])</set-url>
 			<set-method>GET</set-method>
@@ -45,7 +45,7 @@
                 }</value>
 			</set-header>
 		</send-request>
-		<set-variable name="apitags_namedvalues_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/namedValues?$filter=contains(properties/displayName, '&quot; +apiName + &quot;')&amp;api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<set-variable name="apitags_namedvalues_backend_url" value="@{&#xA;        String apiName =  (string) context.Variables[&quot;apiName&quot;]; &#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/namedValues?$filter=contains(properties/displayName, '&quot; +apiName + &quot;')&amp;api-version=2022-08-01&quot;;&#xA;        return url;&#xA;        }" />
 		<send-request ignore-error="true" timeout="20" response-variable-name="tagsDataFromNamedValues" mode="new">
 			<set-url>@((string)context.Variables["apitags_namedvalues_backend_url"])</set-url>
 			<set-method>GET</set-method>

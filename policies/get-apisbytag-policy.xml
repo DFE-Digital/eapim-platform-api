@@ -24,8 +24,11 @@
 			</when>
 		</choose>
 		<set-query-parameter name="api-version" exists-action="skip">
-			<value>2018-06-01-preview</value>
+			<value>2022-08-01</value>
 		</set-query-parameter>
+		<set-query-parameter name="$top" exists-action="skip">
+            <value>10000</value>
+        </set-query-parameter>
 		<set-query-parameter name="expandApiVersionSet" exists-action="skip">
 			<value>true</value>
 		</set-query-parameter>
@@ -41,8 +44,11 @@
 			<!-- Store result in cache -->
 			<cache-store-value key="@(&quot;management_token&quot;)" value="@((string)context.Variables[&quot;apis_access_token&quot;])" duration="100" />
 			<set-query-parameter name="api-version" exists-action="skip">
-				<value>2018-06-01-preview</value>
+				<value>2022-08-01</value>
 			</set-query-parameter>
+			<set-query-parameter name="$top" exists-action="skip">
+                <value>10000</value>
+            </set-query-parameter>
 			<set-query-parameter name="expandApiVersionSet" exists-action="skip">
 				<value>true</value>
 			</set-query-parameter>

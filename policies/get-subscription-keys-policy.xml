@@ -76,7 +76,7 @@
 			</when>
 			<otherwise />
 		</choose>
-		<set-variable name="subkeys_backend_url" value="@{&#xA;        String subscriptionId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;subscriptionId&quot;);&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/subscriptions/&quot; +subscriptionId + &quot;/listSecrets?api-version=2019-12-01&quot;;&#xA;        return url;&#xA;        }" />
+		<set-variable name="subkeys_backend_url" value="@{&#xA;        String subscriptionId =  context.Request.OriginalUrl.Query.GetValueOrDefault(&quot;subscriptionId&quot;);&#xA;        string url = &quot;{{eapim-platform-management-api-baseurl}}/subscriptions/&quot; +subscriptionId + &quot;/listSecrets?api-version=2022-08-01&quot;;&#xA;        return url;&#xA;        }" />
 		<send-request ignore-error="true" timeout="20" response-variable-name="keysData" mode="new">
 			<set-url>@((string)context.Variables["subkeys_backend_url"])</set-url>
 			<set-method>POST</set-method>
