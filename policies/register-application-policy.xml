@@ -50,6 +50,7 @@
                 var appNameJObject = new JObject();
                 appNameJObject.Add("displayName", appNameToRegister);
                 appNameJObject.Add("description", description);
+                appNameJObject.Add("signInAudience","AzureADandPersonalMicrosoftAccount");
                 JArray redirectUris = new JArray();
                 redirectUris.Add(redirectUri);
                 JObject redirectUriJObj = new JObject();
